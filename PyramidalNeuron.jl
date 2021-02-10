@@ -12,7 +12,7 @@ using .SomaticCompartment
 using .DendriticCompartment
 using .AxonInitialSegment
 
-function simulatePyC(t_step, dt, v_d, w_d, v_s, w_s, I_dbg, I_sbg, syntrace_sst, syntrace_pv)
+function simulatePyC(t_step, dt, v_d, w_d, v_s, w_s, I_dbg, I_sbg, syntrace_sst, syntrace_pv, syntrace_chc)
     I_dbgPrime = I_dbg + dI_dbg_dt(I_dbg)*dt
     I_sbgPrime = I_sbg + dI_sbg_dt(I_sbg)*dt
     

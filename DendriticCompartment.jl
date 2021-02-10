@@ -21,7 +21,7 @@ function K(t)
     if t < 1*ms
         return 0 
     elseif t > 1*ms && t < 3*ms
-        return -50*mV ## Change to actual plateau value
+        return -50*mV ## TODO - Change to actual plateau value
     else return 0 end 
 end 
 

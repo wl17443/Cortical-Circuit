@@ -13,6 +13,8 @@ nr_pv = 5
 t = 100*s
 dt = 5*ms
 
+steps = Int(t/dt)
+
 # export all
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
