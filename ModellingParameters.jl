@@ -5,10 +5,10 @@ include("Units.jl")
 using .Units 
 
 ## Model Constants 
-nr_pyc = 5
+nr_pyc = 1
 nr_chc = 1
-nr_sst = 5
-nr_pv = 5
+nr_sst = 1
+nr_pv = 1
 
 t = 100*s
 dt = 5*ms

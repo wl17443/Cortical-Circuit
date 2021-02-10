@@ -26,7 +26,9 @@ function K(t)
 end 
 
 ##  where t_ is the last spike time of soma - updates with every spike (global variable)
-dv_d_dt(v_d, I_dbg, t) = -(v_d .- EL) ./ t_d + (g_d .* f(v_d) + c_d .* K(t*dt - t_) + w_d + I_dbg + I_d) ./ C_d
+## TODO - Check that f(v_d) is not f(v_s)
+## TODO - Define I_d 
+dv_d_dt(v_d, I_dbg, t_, st_SSTEd, t) = -(v_d .- EL) ./ t_d + (g_d .* f(v_d) + c_d .* K(t*dt .- t_) + w_d + I_dbg + I_d_sst(st_SSTEd)) ./ C_d
 dw_d_dt(w_d, v_d) = - w_d ./ t_d_w + a_d .* (v_d .- EL) ./ t_d_w
 
 ## External background current - uncorrelated activity 
@@ -35,6 +37,8 @@ u_d = 400*pA; theta_d = 450*pA; t_bg = 2*ms
 
 ## Gaussian white noise with zero mean 
 dI_dbg_dt(I_dbg) = -(I_dbg .- u_d) ./ t_bg + theta_d .* randn(size(I_dbg))
+
+I_d_sst(st_SSTEd) = -sum(abs.(W_SSTEd)*st_SSTEd)
 
 # Export all
 for n in names(@__MODULE__; all=true)

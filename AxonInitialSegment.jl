@@ -2,7 +2,7 @@ module AxonInitialSegment
 
 include("Units.jl")
 
-using Units 
+using .Units 
 
 EL = -70*mV; t_a = 14*ms ## TODO - Subject to change 
 g_s = 1000*pA ## TODO - Subject to change 
