@@ -26,7 +26,7 @@ W_ChCSST = randn((nr_chc, nr_sst))/(nr_chc*nr_sst)
 W_PVSST = randn((nr_pv, nr_sst))/(nr_pv*nr_sst)
 W_PVChC = randn((nr_pv, nr_chc))/(nr_pv*nr_chc)
 
-# export all
+# Export all
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
         @eval export $n

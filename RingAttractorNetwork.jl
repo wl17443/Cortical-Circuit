@@ -33,9 +33,9 @@ I_chcbg = zeros(nr_chc, steps)
 
 ## Initial values 
 v_d[1] = -70*mV
-w_d[1] = randn(nr_pyc)
 v_s[1] = -70*mV
-w_s[1] = randn(nr_pyc)
+w_d[:, 1] = randn(nr_pyc)
+w_s[:, 1] = randn(nr_pyc)
 
 I_sbg[1] = 0*nA
 I_dbg[1] = 0*nA
@@ -52,7 +52,13 @@ R_sst = randn(nr_sst)
 R_pv = randn(nr_pv)
 R_chc = randn(nr_chc)
 
-t_ = zeros(nr_pyc)
+t_pycd = [[] for i=1:nr_pyc]
+t_pycs = [[] for i=1:nr_pyc]
+t_pyca = [[] for i=1:nr_pyc]
+
+t_sst = [[] for i=1:nr_sst]
+t_pv = [[] for i=1:nr_pv]
+t_chc = []
 
 ## Simulation 
 for t_step = 2:(steps)
@@ -64,7 +70,10 @@ for t_step = 2:(steps)
     simulateI(t_step, dt, v_chc[:, t_step-1], I_chcbg, u_chc, R_chc) 
 end 
 
-# export all
+## Output 
+
+
+# Export all
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
         @eval export $n

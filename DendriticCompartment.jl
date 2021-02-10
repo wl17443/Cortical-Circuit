@@ -2,9 +2,11 @@
 module DendriticCompartment
 
 include("Units.jl")
+include("ModellingParameters.jl")
 
 using .Units
 using Random, Distributions 
+using .ModellingParameters
 
 ## Non-linear activation of the dendrite
 E_d = -38*mV; D_d = 6*mV 
@@ -24,17 +26,17 @@ function K(t)
 end 
 
 ##  where t_ is the last spike time of soma - updates with every spike (global variable)
-dv_d_dt(v_d, I_dbg, t) = -(v_d .- EL) ./ t_d + (g_d .* f(v_d) + c_d .* K(t - t_) + w_d + I_dbg + I_d) ./ C_d
-dw_d_dt(w_d, v_d, t) = - w_d ./ t_d_w + a_d .* (v_d .- EL) ./ t_d_w
+dv_d_dt(v_d, I_dbg, t) = -(v_d .- EL) ./ t_d + (g_d .* f(v_d) + c_d .* K(t*dt - t_) + w_d + I_dbg + I_d) ./ C_d
+dw_d_dt(w_d, v_d) = - w_d ./ t_d_w + a_d .* (v_d .- EL) ./ t_d_w
 
 ## External background current - uncorrelated activity 
 ## Constants 
 u_d = 400*pA; theta_d = 450*pA; t_bg = 2*ms
 
 ## Gaussian white noise with zero mean 
-dI_dbg_dt(I_dbg, t) = -(I_dbg .- u_d) ./ t_bg + theta_d .* randn(size(I_dbg))
+dI_dbg_dt(I_dbg) = -(I_dbg .- u_d) ./ t_bg + theta_d .* randn(size(I_dbg))
 
-# export all
+# Export all
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
         @eval export $n
