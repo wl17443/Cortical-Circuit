@@ -44,9 +44,9 @@ R_sst = randn(nr_sst)
 R_pv = randn(nr_pv)
 
 ## Spike timing
-t_pyc = [[-1*s] for i=1:nr_pyc]
-t_sst = [[-1*s] for i=1:nr_sst]
-t_pv = [[-1*s] for i=1:nr_pv]
+t_pyc = [[-1.0*s] for i=1:nr_pyc]
+t_sst = [[-1.0*s] for i=1:nr_sst]
+t_pv = [[-1.0*s] for i=1:nr_pv]
 
 ## Synaptic trace 
 st_EsSST = randn(nr_sst)
@@ -56,11 +56,11 @@ st_PVEs = randn(nr_pyc)
 
 ## Simulation
 for t = 2:steps
-    v_dPrime, w_dPrime, v_sPrime, w_sPrime, I_dbgPrime, I_isgPrime, t_Prime = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_dbg, I_sbg, t_pyc, st_SSTEd, st_PVEs)
+    v_dPrime, w_dPrime, v_sPrime, w_sPrime, I_dbgPrime, I_sbgPrime, t_Prime = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_dbg, I_sbg, t_pyc, st_SSTEd, st_PVEs)
 
     ## Simulate for each type of interneuron 
-    simulateI(t, v_sst[:, t-1], I_sstbg, u_sst, W_ESST, W_PVSST, R_sst) 
-    simulateI(t, v_pv[:, t-1], I_pvbg, u_pv, W_EPV, W_SSTPV, R_pv) 
+    v_sstPrime, I_sstbgPrime = simulateI(t, v_sst[:, t-1], I_sstbg, u_sst, R_sst, W_ESST, W_PVSST) 
+    v_pvPrime, I_pvbgPrime = simulateI(t, v_pv[:, t-1], I_pvbg, u_pv, R_pv, W_EPV, W_SSTPV) 
 
     t_ = t_Prime 
     v_d[:, t] = v_dPrime
@@ -68,8 +68,13 @@ for t = 2:steps
     v_s[:, t] = v_sPrime
     w_s[:, t] = w_sPrime 
 
-    I_dbg[:, t] = I_dbgPrime
-    I_sbg[:, t] = I_sbgPrime 
+    v_sst[:, t] = v_sstPrime 
+    v_pv[:, t] = v_pvPrime 
+
+    # I_dbg = I_dbgPrime 
+    # I_sbg = I_sbgPrime 
+    # I_sstbg = I_sstbgPrime 
+    # I_pvbg = I_pvbgPrime 
 end 
 
 end 

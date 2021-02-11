@@ -21,9 +21,9 @@ function simulatePyC(t, v_d, w_d, v_s, w_s, I_dbg, I_sbg, t_, st_SSTEd, st_PVEs)
     I_sbgPrime = I_sbg + dI_sbg_dt(I_sbg)*dt
     
     v_dPrime = v_d + dv_d_dt(v_d, I_dbg, w_d, last.(t_), st_SSTEd, t)*dt
-    w_dPrime = w_d + dw_d_dt(w_d)*dt
+    w_dPrime = w_d + dw_d_dt(w_d, v_d)*dt
 
-    v_sPrime = v_s + dv_s_dt(v_s, I_sbg, w_s, st_PVEs)*dt
+    v_sPrime = v_s + dv_s_dt(v_s, v_d, I_sbg, w_s, st_PVEs)*dt
     w_sPrime = w_s + dw_s_dt(w_s, t)*dt
 
     ## TODO - If the new voltage surpasses the threshold, append to the spiking time and reset the voltage of the soma

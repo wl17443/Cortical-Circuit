@@ -4,9 +4,11 @@ module Interneuron
 
 include("Units.jl")
 include("Connectivity.jl")
+include("ModellingParameters.jl")
 
 using .Units
 using .Connectivity
+using .ModellingParameters
 using Random, Distributions 
 
 EL = -70*mV; t_i = 10*ms; C_i = 100*pF;
@@ -24,21 +26,22 @@ dI_ibg_dt(I_ibg) = -(I_ibg .- u_i) ./ t_bg + theta_i .* randn(size(I_ibg))
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons 
 ## TODO - Need update with individual types of interneurons 
-I_rec_i(u, R, W_EI, W_II, t) = W_EI * u(u, R) * s(t) - W_II * s(t)
+I_rec_i(u, R, W_EI, W_II, t) = W_EI * mu(u, R) * s(t) - W_II * s(t)
 
-u(u, R) = u * R
+mu(u, R) = u * R
 
 ## Constants
+## TODO - What is S?
 t_u = 100*ms; F = 0.1; S = 1; t_R = 100*ms; 
 
 du_dt(u) = -(u .- U) ./ t_u + (ones(size(u)) - u) .* F .* S
 dR_dt(R, u) = -(R - ones(size(R))) ./ t_R - u .* R .* S
 
-function simulateI(t_step, dt, v_i, I_ibg, u, R)
+function simulateI(t, v_i, I_ibg, u, R, W_EI, W_II)
     I_ibgPrime = I_ibg + dI_ibg_dt(I_ibg) * dt
     uPrime = u + du_dt(u) .* dt
     RPrime = R + dR_dt(u, R) .* dt
-    v_iPrime = dv_i_dt(v_i, I_ibg, u, R, t_step)
+    v_iPrime = dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, t)
 
     return V_iPrime, I_ibgPrime
 end  

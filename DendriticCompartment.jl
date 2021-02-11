@@ -16,7 +16,7 @@ E_d = -38*mV; D_d = 6*mV
 f(v) = 1 ./ (1 .+ exp.(-(v .- E_d) ./ D_d))
 
 ## Constants 
-EL = -70*mV; t_d = 7*ms; g_d = 1200*pA; c_d = 2600*pA; t_d_w = 30*ms; a_d = -13*nS
+EL = -70*mV; t_d = 7*ms; g_d = 1200*pA; c_d = 2600*pA; t_d_w = 30*ms; a_d = -13*nS; C_d = 170*pF
 
 ## Boxcar kernel K 
 function K(t)
@@ -43,7 +43,7 @@ u_d = 400*pA; theta_d = 450*pA; t_bg = 2*ms
 ## Gaussian white noise with zero mean 
 dI_dbg_dt(I_dbg) = -(I_dbg .- u_d) ./ t_bg + theta_d .* randn(size(I_dbg))
 
-I_d_sst(st_SSTEd) = -sum(abs.(W_SSTEd)*st_SSTEd)
+I_d_sst(st_SSTEd) = -sum.(abs.(W_SSTEd)*st_SSTEd)
 
 # Export all
 for n in names(@__MODULE__; all=true)
