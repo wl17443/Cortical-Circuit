@@ -5,26 +5,28 @@ include("ModellingParameters.jl")
 
 using .Units
 using .ModellingParameters
-using Random 
+using Random, Distributions
 
 ## Connectivity matrix that makes up the ring attractor network of PyC 
-W_EaEs = [ [0, 1, -1, -1, 1],
-           [1, 0, 1, -1, -1],
-           [-1, 1, 0, 1, -1],
-           [-1, -1, 1, 0, 1],
-           [1, -1, -1, 1, 0] ]
+# W_EaEs = [ [0, 1, -1, -1, 1],
+#            [1, 0, 1, -1, -1],
+#            [-1, 1, 0, 1, -1],
+#            [-1, -1, 1, 0, 1],
+#            [1, -1, -1, 1, 0] ]
+W_ESST = randn((nr_pyc, nr_sst))/(nr_pyc*nr_sst)
+W_EPV = randn((nr_pyc, nr_pv))/(nr_pyc*nr_pv)
 
 W_SSTEd = randn((nr_sst, nr_pyc))/(nr_sst*nr_pyc)
 W_PVEs = randn((nr_pv, nr_pyc))/(nr_pv*nr_pyc)
-W_ChCEa = randn((nr_chc, nr_pyc))/(nr_chc*nr_pyc)
+# W_ChCEa = randn((nr_chc, nr_pyc))/(nr_chc*nr_pyc)
 
 ## Inter-Interneuron connectivity 
 W_SSTPV = randn((nr_sst, nr_pv))/(nr_sst*nr_pv)
-W_SSTChC = randn((nr_sst, nr_chc))/(nr_sst*nr_chc)
-W_ChCPV = randn((nr_chc, nr_pv))/(nr_chc*nr_pv)
-W_ChCSST = randn((nr_chc, nr_sst))/(nr_chc*nr_sst)
+# W_SSTChC = randn((nr_sst, nr_chc))/(nr_sst*nr_chc)
+# W_ChCPV = randn((nr_chc, nr_pv))/(nr_chc*nr_pv)
+# W_ChCSST = randn((nr_chc, nr_sst))/(nr_chc*nr_sst)
 W_PVSST = randn((nr_pv, nr_sst))/(nr_pv*nr_sst)
-W_PVChC = randn((nr_pv, nr_chc))/(nr_pv*nr_chc)
+# W_PVChC = randn((nr_pv, nr_chc))/(nr_pv*nr_chc)
 
 # Export all
 for n in names(@__MODULE__; all=true)

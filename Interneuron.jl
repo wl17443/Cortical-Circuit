@@ -12,7 +12,7 @@ using Random, Distributions
 EL = -70*mV; t_i = 10*ms; C_i = 100*pF;
 
 ## Modelled as leaky-integrate-and-fire-neurons
-dv_i_dt(v_i, I_ibg, u, R, t) = -(v_i .- EL) ./ t_i + (I_rec_i(u, R, t) + I_ibg) / C_i 
+dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, t) = -(v_i .- EL) ./ t_i + (I_rec_i(u, R, W_EI, W_II, t) + I_ibg) / C_i 
 
 ## External background current - uncorrelated activity 
 ## Constants 
@@ -24,9 +24,7 @@ dI_ibg_dt(I_ibg) = -(I_ibg .- u_i) ./ t_bg + theta_i .* randn(size(I_ibg))
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons 
 ## TODO - Need update with individual types of interneurons 
-I_rec_pv(u, R, t) = W_PVEs * u(u, R) * s(t) - W_SSTPV * s(t)
-
-I_rec_sst(u, R, t) = W_SSTEd * u(u, R) * s(t) - W_PVSST * s(t)
+I_rec_i(u, R, W_EI, W_II, t) = W_EI * u(u, R) * s(t) - W_II * s(t)
 
 u(u, R) = u * R
 

@@ -2,8 +2,10 @@
 module SomaticCompartment
 
 include("Units.jl")
+include("Connectivity.jl")
 
 using .Units 
+using .Connectivity
 using Random, Distributions 
 
 ## Non-linear activation of the dendrite

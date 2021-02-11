@@ -56,11 +56,20 @@ st_PVEs = randn(nr_pyc)
 
 ## Simulation
 for t = 2:steps
-    simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_dbg, I_sbg, t_pyc)
+    v_dPrime, w_dPrime, v_sPrime, w_sPrime, I_dbgPrime, I_isgPrime, t_Prime = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_dbg, I_sbg, t_pyc, st_SSTEd, st_PVEs)
 
     ## Simulate for each type of interneuron 
-    simulateI(t, v_sst[:, t-1], I_sstbg, u_sst, R_sst) 
-    simulateI(t, v_pv[:, t-1], I_pvbg, u_pv, R_pv) 
+    simulateI(t, v_sst[:, t-1], I_sstbg, u_sst, W_ESST, W_PVSST, R_sst) 
+    simulateI(t, v_pv[:, t-1], I_pvbg, u_pv, W_EPV, W_SSTPV, R_pv) 
+
+    t_ = t_Prime 
+    v_d[:, t] = v_dPrime
+    w_d[:, t] = w_dPrime
+    v_s[:, t] = v_sPrime
+    w_s[:, t] = w_sPrime 
+
+    I_dbg[:, t] = I_dbgPrime
+    I_sbg[:, t] = I_sbgPrime 
 end 
 
 end 
