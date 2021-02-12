@@ -25,7 +25,7 @@ dI_ibg_dt(I_ibg) = -(I_ibg .- u_i) ./ t_bg + theta_i .* randn(size(I_ibg))
 
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons 
-## TODO - Need update with individual types of interneurons 
+## Need update with individual types of interneurons 
 I_rec_i(u, R, W_EI, W_II, t) = W_EI * mu(u, R) * s(t) - W_II * s(t)
 
 mu(u, R) = u * R
