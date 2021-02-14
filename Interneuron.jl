@@ -3,18 +3,20 @@
 module Interneuron
 
 include("Units.jl")
-include("Connectivity.jl")
+# include("Connectivity.jl")
 include("ModellingParameters.jl")
+include("UpdateSynapticTrace.jl")
 
 using .Units
-using .Connectivity
+# using .Connectivity
 using .ModellingParameters
+using .UpdateSynapticTrace
 using Random, Distributions 
 
-EL = -70*mV; t_i = 10*ms; C_i = 100*pF;
+EL = -70*mV; t_i = 10*ms; C_i = 100*pF; v_thr = -50*mV
 
 ## Modelled as leaky-integrate-and-fire-neurons
-dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, t) = -(v_i .- EL) ./ t_i + (I_rec_i(u, R, W_EI, W_II, t) + I_ibg) / C_i 
+dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, st_EI, st_II) = -(v_i .- EL) ./ t_i + (I_rec_i(u, R, W_EI, W_II, st_EI, st_II) + I_ibg) / C_i 
 
 ## External background current - uncorrelated activity 
 ## Constants 
@@ -26,24 +28,40 @@ dI_ibg_dt(I_ibg) = -(I_ibg .- u_i) ./ t_bg + theta_i .* randn(size(I_ibg))
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons 
 ## Need update with individual types of interneurons 
-I_rec_i(u, R, W_EI, W_II, t) = W_EI * mu(u, R) * s(t) - W_II * s(t)
+I_rec_i(u, R, W_EI, W_II, st_EI, st_II) = W_EI .* mu(u, R) .* st_EI - W_II .* st_II
 
-mu(u, R) = u * R
+mu(u, R) = u .* R
 
 ## Constants
 ## TODO - What is S?
-t_u = 100*ms; F = 0.1; S = 1; t_R = 100*ms; 
+t_u = 100*ms; F = 0.1; t_R = 100*ms; 
 
-du_dt(u) = -(u .- U) ./ t_u + (ones(size(u)) - u) .* F .* S
+## Define U 
+du_dt(u, U) = -(u .- U) ./ t_u + (ones(size(u)) - u) .* F .* S
 dR_dt(R, u) = -(R - ones(size(R))) ./ t_R - u .* R .* S
 
-function simulateI(t, v_i, I_ibg, u, R, W_EI, W_II)
-    I_ibgPrime = I_ibg + dI_ibg_dt(I_ibg) * dt
-    uPrime = u + du_dt(u) .* dt
-    RPrime = R + dR_dt(u, R) .* dt
-    v_iPrime = dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, t)
 
-    return V_iPrime, I_ibgPrime
+## Implement spiking mechanism
+## TODO - Update synaptic trace based on firing 
+function simulateI(t, v_i, I_ibg, t_, u, R, U, W_EI, W_II, st_EI, st_II, st_IE, st_II2)
+    I_ibgPrime = I_ibg + dI_ibg_dt(I_ibg) .* dt
+    uPrime = u + du_dt(u, U) .* dt
+    RPrime = R + dR_dt(u, R) .* dt
+    v_iPrime = v_i + dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, st_EI, st_II) .* dt
+
+    for i = 1:length(t_)
+        if v_iPrime[i] >= v_thr 
+            # Update last spike timing 
+            t_[i] = t*dt
+            v_iPrime[i] = -70*mV
+        end 
+
+        # Update synaptic trace 
+        st_IE[i] = update_st(t, t_[i], st_IE[i])
+        st_II2[i] = update_st(t, t_[i], st_II2[i])
+    end 
+
+    return v_iPrime, I_ibgPrime, t_, st_IE, st_II2
 end  
 
 # Export all

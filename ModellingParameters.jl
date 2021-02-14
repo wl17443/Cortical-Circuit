@@ -10,10 +10,12 @@ nr_chc = 1
 nr_sst = 1
 nr_pv = 1
 
-t = 100*s
-dt = 5*ms
+t = 1*s
+dt = 1*ms
 
 steps = Int(t/dt)
+
+S = 1
 
 # export all
 for n in names(@__MODULE__; all=true)
