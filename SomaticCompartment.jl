@@ -15,7 +15,7 @@ f(v) = 1 ./ (1 .+ exp.(-(v .- E_d) ./ D_d))
 
 ## Constants 
 EL = -70*mV; t_s = 16*ms; g_s = 1300*pA; C_s = 370*pF
-b_s = -300*pA; t_s_w = 100*ms 
+b_s = -200*pA; t_s_w = 100*ms 
 
 ## S(t) spike train from soma 
 dv_s_dt(v_s, v_d, I_inj, I_sbg, w_s, W_PVEs, st_PVEs) = -(v_s .- EL) ./ t_s + (g_s .* f(v_d) .+ w_s + I_inj + I_sbg + I_s_pv(W_PVEs, st_PVEs)) ./ C_s

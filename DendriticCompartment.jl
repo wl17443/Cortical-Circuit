@@ -37,7 +37,7 @@ dw_d_dt(w_d, v_d) = - w_d ./ t_d_w + a_d .* (v_d .- EL) ./ t_d_w
 
 ## External background current - uncorrelated activity 
 ## Constants 
-u_d = 400*pA; theta_d = 450*pA; t_bg = 2*ms
+u_d = -300*pA; theta_d = 450*pA; t_bg = 2*ms
 
 ## Gaussian white noise with zero mean 
 dI_dbg_dt(I_dbg) = -(I_dbg .- u_d) ./ t_bg + theta_d .* randn(size(I_dbg))

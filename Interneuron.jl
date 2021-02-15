@@ -33,7 +33,6 @@ I_rec_i(u, R, W_EI, W_II, st_EI, st_II) = W_EI .* mu(u, R) .* st_EI - W_II .* st
 mu(u, R) = u .* R
 
 ## Constants
-## TODO - What is S?
 t_u = 100*ms; F = 0.1; t_R = 100*ms; 
 
 ## Define U 
@@ -43,16 +42,16 @@ dR_dt(R, u) = -(R - ones(size(R))) ./ t_R - u .* R .* S
 ## Implement spiking mechanism
 ## Update synaptic trace based on firing 
 function simulateI(t, v_i, I_ibg, t_, u, R, U, W_EI, W_II, st_EI, st_II, st_IE, st_II2)
-    I_ibgPrime = I_ibg + dI_ibg_dt(I_ibg) .* dt
-    uPrime = u + du_dt(u, U) .* dt
-    RPrime = R + dR_dt(u, R) .* dt
-    v_iPrime = v_i + dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, st_EI, st_II) .* dt
+    I_ibg += dI_ibg_dt(I_ibg) .* dt
+    u += du_dt(u, U) .* dt
+    R += dR_dt(u, R) .* dt
+    v_i += dv_i_dt(v_i, I_ibg, u, R, W_EI, W_II, st_EI, st_II) .* dt
 
     for i = 1:length(t_)
-        if v_iPrime[i] >= v_thr 
+        if v_i[i] >= v_thr 
             # Update last spike timing 
             t_[i] = t*dt
-            v_iPrime[i] = -70*mV
+            v_i[i] = EL
         end 
 
         # Update synaptic trace 
@@ -60,7 +59,7 @@ function simulateI(t, v_i, I_ibg, t_, u, R, U, W_EI, W_II, st_EI, st_II, st_IE, 
         st_II2[i] = update_st(t, t_[i], st_II2[i])
     end 
 
-    return v_iPrime, I_ibgPrime, t_, st_IE, st_II2
+    return v_i, I_ibg, t_, st_IE, st_II2
 end
 
 # Export all
