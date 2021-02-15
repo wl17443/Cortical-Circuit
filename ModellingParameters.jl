@@ -15,7 +15,7 @@ dt = 1*ms
 
 steps = Int(t/dt)
 
-S = 1
+S = 0.5
 
 # export all
 for n in names(@__MODULE__; all=true)

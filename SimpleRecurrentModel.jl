@@ -40,10 +40,10 @@ v_sst = zeros(nr_sst, steps)
 v_pv = zeros(nr_pv, steps)
 # v_chc = zeros(nr_chc, steps)
 
-I_sbg = randn(nr_pyc)*nA
-I_dbg = randn(nr_pyc)*nA
-I_sstbg = randn(nr_sst)*nA
-I_pvbg = randn(nr_pv)*nA
+I_sbg = ones(nr_pyc, steps)*nA
+I_dbg = ones(nr_pyc, steps)*nA
+I_sstbg = ones(nr_sst, steps)*nA
+I_pvbg = ones(nr_pv, steps)*nA
 
 ## Initial values 
 v_d[1] = -70*mV
@@ -78,11 +78,11 @@ I_inj_s = ones(nr_pyc, steps) * 1000*pA
 
 ## Simulation
 for t = 2:steps
-    v_dPrime, w_dPrime, v_sPrime, w_sPrime, I_dbgPrime, I_sbgPrime, t_pycPrime, st_EsSSTPrime, st_EsPVPrime = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg, I_sbg, t_pyc, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs, st_EsSST, st_EsPV)
+    v_dPrime, w_dPrime, v_sPrime, w_sPrime, I_dbgPrime, I_sbgPrime, t_pycPrime, st_EsSSTPrime, st_EsPVPrime = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs, st_EsSST, st_EsPV)
 
     ## Simulate for each type of interneuron 
-    v_sstPrime, I_sstbgPrime, t_sstPrime, st_SSTEdPrime, st_SSTPVPrime = simulateI(t, v_sst[:, t-1], I_sstbg, t_sst, u_sst, R_sst, U_ESST, W_ESST, W_PVSST, st_EsSST, st_PVSST, st_SSTEd, st_SSTPV) 
-    v_pvPrime, I_pvbgPrime, t_pvPrime, st_PVEsPrime, st_PVSSTPrime = simulateI(t, v_pv[:, t-1], I_pvbg, t_pv, u_pv, R_pv, U_EPV, W_EPV, W_SSTPV, st_EsPV, st_SSTPV, st_PVEs, st_PVSST) 
+    v_sstPrime, I_sstbgPrime, t_sstPrime, st_SSTEdPrime, st_SSTPVPrime = simulateI(t, v_sst[:, t-1], I_sstbg[:, t-1], t_sst, u_sst, R_sst, U_ESST, W_ESST, W_PVSST, st_EsSST, st_PVSST, st_SSTEd, st_SSTPV) 
+    v_pvPrime, I_pvbgPrime, t_pvPrime, st_PVEsPrime, st_PVSSTPrime = simulateI(t, v_pv[:, t-1], I_pvbg[:, t-1], t_pv, u_pv, R_pv, U_EPV, W_EPV, W_SSTPV, st_EsPV, st_SSTPV, st_PVEs, st_PVSST) 
 
     t_pyc[:] = t_pycPrime 
     t_sst[:] = t_sstPrime 
@@ -96,10 +96,10 @@ for t = 2:steps
     v_sst[:, t] = v_sstPrime 
     v_pv[:, t] = v_pvPrime 
 
-    I_dbg[:] = I_dbgPrime 
-    I_sbg[:] = I_sbgPrime 
-    I_sstbg[:] = I_sstbgPrime 
-    I_pvbg[:] = I_pvbgPrime 
+    I_dbg[:, t] = I_dbgPrime 
+    I_sbg[:, t] = I_sbgPrime 
+    I_sstbg[:, t] = I_sstbgPrime 
+    I_pvbg[:, t] = I_pvbgPrime 
 
     st_EsPV[:] = st_EsPVPrime 
     st_EsSST[:] = st_EsSSTPrime
@@ -114,6 +114,10 @@ p1 = plot(step_list, v_s[:], label="Somatic Voltage")
 p2 = plot(step_list, v_d[:], label="Dendritic Voltage")
 p3 = plot(step_list, v_sst[:], label="SST Voltage")
 p4 = plot(step_list, v_pv[:], label="PV Voltage")
-display(plot(p1, p2, p3, p4, layout=(2,2)))
+p5 = plot(step_list, I_dbg[:], label="Dedritic bg Current")
+p6 = plot(step_list, I_sbg[:], label="Somatic bg Current")
+p7 = plot(step_list, I_sstbg[:], label="SST bg Current")
+p8 = plot(step_list, I_pvbg[:], label="PV bg Current")
 
+display(plot(p1, p2, p3, p4, p5, p6, p7, p8, layout=(4,2)))
 end 

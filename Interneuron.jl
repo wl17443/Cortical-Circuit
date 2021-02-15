@@ -40,9 +40,8 @@ t_u = 100*ms; F = 0.1; t_R = 100*ms;
 du_dt(u, U) = -(u .- U) ./ t_u + (ones(size(u)) - u) .* F .* S
 dR_dt(R, u) = -(R - ones(size(R))) ./ t_R - u .* R .* S
 
-
 ## Implement spiking mechanism
-## TODO - Update synaptic trace based on firing 
+## Update synaptic trace based on firing 
 function simulateI(t, v_i, I_ibg, t_, u, R, U, W_EI, W_II, st_EI, st_II, st_IE, st_II2)
     I_ibgPrime = I_ibg + dI_ibg_dt(I_ibg) .* dt
     uPrime = u + du_dt(u, U) .* dt
@@ -62,7 +61,7 @@ function simulateI(t, v_i, I_ibg, t_, u, R, U, W_EI, W_II, st_EI, st_II, st_IE, 
     end 
 
     return v_iPrime, I_ibgPrime, t_, st_IE, st_II2
-end  
+end
 
 # Export all
 for n in names(@__MODULE__; all=true)
