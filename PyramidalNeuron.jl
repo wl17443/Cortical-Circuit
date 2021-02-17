@@ -19,19 +19,19 @@ using .UpdateSynapticTrace
 v_thr = -50*mV
 
 function simulatePyC(t, v_d, w_d, v_s, w_s, I_inj_d, I_inj_s, I_dbg, I_sbg, t_, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs, st_EsSST, st_EsPV)
-    I_dbg += dI_dbg_dt(I_dbg)*dt
-    I_sbg += dI_sbg_dt(I_sbg)*dt
+    I_dbg += dI_dbg_dt(I_dbg) .* dt; #map!( x -> x < 0 ? 0 : x, I_dbg, I_dbg)
+    I_sbg += dI_sbg_dt(I_sbg) .* dt; #map!( x -> x < 0 ? 0 : x, I_sbg, I_sbg)
     
-    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, t_, W_SSTEd, st_SSTEd, t)*dt
-    w_d += dw_d_dt(w_d, v_d)*dt
+    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, t_, W_SSTEd, st_SSTEd, t) .* dt
+    w_d += dw_d_dt(w_d, v_d) .* dt
 
-    v_s += dv_s_dt(v_s, v_d, I_inj_s, I_sbg, w_s, W_PVEs, st_PVEs)*dt
-    w_s += dw_s_dt(w_s, t)*dt
+    v_s += dv_s_dt(v_s, v_d, I_inj_s, I_sbg, w_s, W_PVEs, st_PVEs) .* dt
+    w_s += dw_s_dt(w_s, t) .* dt
 
     ## If the new voltage surpasses the threshold, append to the spiking time and reset the voltage of the soma
     for i = 1:nr_pyc
         if v_s[i] >= v_thr 
-            t_[i] = t*dt
+            t_[i] = t * dt
             v_s[i] = -70*mV
         end 
 

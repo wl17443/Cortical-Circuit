@@ -14,6 +14,7 @@ using .Units
 using .ModellingParameters
 using Random, Distributions
 using Plots 
+using Noise 
 
 ## Weights being optimised 
 W_ESST = randn((nr_pyc, nr_sst))/(nr_pyc*nr_sst)
@@ -72,21 +73,21 @@ st_PVEs = zeros(nr_pyc)
 st_SSTPV = zeros(nr_pv)
 st_PVSST = zeros(nr_sst)
 
-I_dbg[:, 1] = 300*pA/2*ms .+ 450*pA .* randn(nr_pyc)
-I_sbg[:, 1] = -400*pA/2*ms .+ 450*pA .* randn(nr_pyc)
-I_sstbg[:, 1] = 100*pA/2*ms .+ 400*pA .* randn(nr_sst)
-I_pvbg[:, 1] = 100*pA/2*ms .+ 400*pA .* randn(nr_pv)
+I_dbg[:, 1] = add_gauss(-300*pA/2*ms .* ones(nr_pyc), 450*pA) #map!( x -> x < 0 ? 0 : x, I_dbg[:, 1], I_dbg[:, 1])
+I_sbg[:, 1] = add_gauss(400*pA/2*ms .* ones(nr_pyc), 450*pA) #map!( x -> x < 0 ? 0 : x, I_sbg[:, 1], I_sbg[:, 1])
+I_sstbg[:, 1] = add_gauss(-100*pA/2*ms .* ones(nr_pyc), 400*pA) #map!( x -> x < 0 ? 0 : x, I_sstbg[:, 1], I_sstbg[:, 1])
+I_pvbg[:, 1] = add_gauss(-100*pA/2*ms .* ones(nr_pyc), 400*pA) #map!( x -> x < 0 ? 0 : x, I_pvbg[:, 1], I_pvbg[:, 1])
 
-I_inj_d = ones(nr_pyc, steps) * 2000*pA
-I_inj_s = ones(nr_pyc, steps) * 2000*pA
+I_inj_d = ones(nr_pyc, steps) .* 2000*pA
+I_inj_s = ones(nr_pyc, steps) .* 2000*pA
 
 ## Simulation
 for t = 2:steps
     v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:], st_EsSST[:], st_EsPV[:] = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs, st_EsSST, st_EsPV)
 
     ## Simulate for each type of interneuron 
-    v_sst[:, t], I_sstbg[:, t], t_sst[:], st_SSTEd[:], st_SSTPV[:] = simulateI(t, v_sst[:, t-1], I_sstbg[:, t-1], t_sst, u_sst, R_sst, U_ESST, W_ESST, W_PVSST, st_EsSST, st_PVSST, st_SSTEd, st_SSTPV) 
-    v_pv[:, t], I_pvbg[:, t], t_pv[:], st_PVEs[:], st_PVSST[:] = simulateI(t, v_pv[:, t-1], I_pvbg[:, t-1], t_pv, u_pv, R_pv, U_EPV, W_EPV, W_SSTPV, st_EsPV, st_SSTPV, st_PVEs, st_PVSST) 
+    v_sst[:, t], I_sstbg[:, t], u_sst[:], R_sst[:], t_sst[:], st_SSTEd[:], st_SSTPV[:] = simulateI(t, v_sst[:, t-1], I_sstbg[:, t-1], t_sst, u_sst, R_sst, U_ESST, W_ESST, W_PVSST, st_EsSST, st_PVSST, st_SSTEd, st_SSTPV) 
+    v_pv[:, t], I_pvbg[:, t], u_pv[:], R_pv[:], t_pv[:], st_PVEs[:], st_PVSST[:] = simulateI(t, v_pv[:, t-1], I_pvbg[:, t-1], t_pv, u_pv, R_pv, U_EPV, W_EPV, W_SSTPV, st_EsPV, st_SSTPV, st_PVEs, st_PVSST) 
 end 
 
 step_list = [1:steps;]
@@ -100,4 +101,5 @@ p7 = plot(step_list, I_sstbg[:], label="SST bg Current")
 p8 = plot(step_list, I_pvbg[:], label="PV bg Current")
 
 display(plot(p1, p2, p3, p4, p5, p6, p7, p8, layout=(4,2), size=(1000,1000)))
+
 end 

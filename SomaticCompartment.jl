@@ -7,6 +7,7 @@ include("Units.jl")
 using .Units 
 # using .Connectivity
 using Random, Distributions 
+using Noise 
 
 ## Non-linear activation of the dendrite
 E_d = -38*mV; D_d = 6*mV 
@@ -26,7 +27,7 @@ dw_s_dt(w_s, spike) = - w_s ./ t_s_w .+ b_s .* spike
 u_s = 400*pA; theta_s = 450*pA; t_bg = 2*ms
 
 ## Gaussian white noise with zero mean and correlation
-dI_sbg_dt(I_sbg) = -(I_sbg .- u_s) ./ t_bg + theta_s .* randn(size(I_sbg))
+dI_sbg_dt(I_sbg) = add_gauss(-(I_sbg .- u_s) ./ t_bg, theta_s) 
 
 I_s_pv(W_PVEs, st_PVEs) = -sum.(abs.(W_PVEs)*st_PVEs)
 
