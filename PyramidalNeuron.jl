@@ -17,29 +17,27 @@ using .ModellingParameters
 using .UpdateSynapticTrace
 
 v_thr = -50*mV
+v_rest = -70*mV
 
-function simulatePyC(t, v_d, w_d, v_s, w_s, I_inj_d, I_inj_s, I_dbg, I_sbg, t_, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs, st_EsSST, st_EsPV)
-    I_dbg += dI_dbg_dt(I_dbg) .* dt; #map!( x -> x < 0 ? 0 : x, I_dbg, I_dbg)
-    I_sbg += dI_sbg_dt(I_sbg) .* dt; #map!( x -> x < 0 ? 0 : x, I_sbg, I_sbg)
+function simulatePyC(t, v_d, w_d, v_s, w_s, I_inj_d, I_inj_s, I_dbg, I_sbg, t_, t_soma, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs)
+    I_dbg += dI_dbg_dt(I_dbg) .* dt
+    I_sbg += dI_sbg_dt(I_sbg) .* dt
     
-    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, t_, W_SSTEd, st_SSTEd, t) .* dt
+    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, W_SSTEd, st_SSTEd, t_soma, t) .* dt
     w_d += dw_d_dt(w_d, v_d) .* dt
 
     v_s += dv_s_dt(v_s, v_d, I_inj_s, I_sbg, w_s, W_PVEs, st_PVEs) .* dt
-    w_s += dw_s_dt(w_s, t) .* dt
+    w_s += dw_s_dt(w_s, t_) .* dt
 
-    ## If the new voltage surpasses the threshold, append to the spiking time and reset the voltage of the soma
-    for i = 1:nr_pyc
-        if v_s[i] >= v_thr 
-            t_[i] = t * dt
-            v_s[i] = -70*mV
+    newt_ = map(x -> x >= v_thr ? 1 : 0, v_s)
+    for i=1:nr_pyc
+        if newt_[i] == 1
+            t_soma[i] = t*dt
         end 
-
-        st_EsSST[i] = update_st(t, t_[i], st_EsSST[i])
-        st_EsPV[i] = update_st(t, t_[i], st_EsPV[i])
     end 
+    map!(x -> x >= v_thr ? v_rest : x, v_s, v_s)
 
-    return v_d, w_d, v_s, w_s, I_dbg, I_sbg, t_, st_EsSST, st_EsPV
+    return v_d, w_d, v_s, w_s, I_dbg, I_sbg, newt_, t_soma 
 end 
 
 # Export all
