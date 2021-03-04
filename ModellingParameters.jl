@@ -15,6 +15,8 @@ dt = 1*ms
 
 steps = Int(t/dt)
 
+tau_syn = 5*ms
+
 # export all
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)

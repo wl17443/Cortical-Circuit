@@ -25,3 +25,6 @@ Manifest.toml
 
 ## VS Code Settings 
 .vscode
+
+## Ignore generated figures (for now)
+fig 

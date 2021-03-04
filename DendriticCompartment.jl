@@ -32,8 +32,6 @@ function K(t)
 end 
 
 ##  where t_ is the last spike time of soma - updates with every spike (global variable)
-## TODO - Check that f(v_d) is not f(v_s)
-## TODO - Implement boxcar kernel 
 dv_d_dt(v_d, I_inj, I_dbg, w_d, W_SSTEd, st_SSTEd, t_soma, t) = -(v_d .- EL) ./ t_d + (g_d .* f(v_d) .+ c_d .* K(t .- t_soma) .+ w_d .+ I_inj .+ I_dbg .+ I_d_sst(W_SSTEd, st_SSTEd)) ./ C_d
 dw_d_dt(w_d, v_d) = - w_d ./ t_d_w + a_d .* (v_d .- EL) ./ t_d_w
 

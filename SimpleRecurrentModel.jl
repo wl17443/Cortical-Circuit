@@ -3,20 +3,19 @@ module SimpleRecurrentNetwork
 
 include("PyramidalNeuron.jl")
 include("Interneuron.jl")
-# include("Connectivity.jl")
 include("Units.jl")
 include("ModellingParameters.jl")
 
 using .PyramidalNeuron
 using .Interneuron
-# using .Connectivity
 using .Units    
 using .ModellingParameters
 using Random, Distributions
 using Plots 
 using Noise 
+using Dates 
 
-initial_synaptic_weight = 4*nS
+# initial_synaptic_weight = 4*nS
 
 ## Weights being optimised 
 ## E->I{SST,PV}
@@ -93,15 +92,13 @@ function stdp(t)
 end 
 
 A_LTD = 14e-5; A_LTP = 8e-5; theta_plus = -45.3*mV; theta_minus = -70.6*mV 
-## Voltage-based STDP 
+## Voltage-based STDP (Clopath et al. 2010)
 ## X is the presynaptic spike train 
 function vb_stdp(X, u, u_bar_plus, u_bar_minus, x_bar)
     new_weight = -A_LTD * X * (u_bar_minus .- theta_minus) + A_LTP * x_bar * (u - theta_plus) * (u_bar_plus - theta_minus)
     return new_weight
 end 
 
-## TODO - STD: E->PV
-## TODO - STP: E->SST 
 u_ESST = zeros(nr_pyc, nr_sst)
 R_ESST = zeros(nr_pyc, nr_sst)
 u_EPV  = zeros(nr_pyc, nr_pv)
@@ -115,8 +112,6 @@ R_PVSST  = zeros(nr_pv, nr_sst)
 U_stp = 0.2; tau_rec_stp = 125*ms; tau_fac_stp = 500*ms
 U_std = 0.25; tau_rec_std = 700*ms; tau_fac_std = 20*ms
 
-tau_syn = 5*ms
-
 ## Simulation
 for t = 2:steps
     v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs)
@@ -127,14 +122,6 @@ for t = 2:steps
 
     u_bar_minus[:] += du_bar_minus_dt(u_bar_minus, v_d[:, t]) .* dt
     u_bar_plus[:] += du_bar_plus_dt(u_bar_plus, v_d[:, t]) .* dt
-
-    ## Update synaptic trace 
-    st_EsSST[:] += (- st_EsSST ./ tau_syn + t_pyc[:, t]) .* dt
-    st_EsPV[:] += (- st_EsPV ./ tau_syn + t_pyc[:, t]) .* dt
-    st_SSTEd[:] += (- st_SSTEd ./ tau_syn + t_sst[:, t]) .* dt
-    st_PVEs[:] += (- st_PVEs ./ tau_syn + t_pv[:, t]) .* dt
-    st_SSTPV[:] += (- st_SSTPV ./ tau_syn + t_sst[:, t]) .* dt
-    st_PVSST[:] += (- st_PVSST ./ tau_syn + t_pv[:, t]) .* dt
 
     ## Update weights - according various plasticity rules 
     ## E->I{SST,PV}
@@ -154,45 +141,63 @@ for t = 2:steps
     end 
 
     ## I{SST,PV}->E{s,d}
+    ## SST->Ed - Voltage-based STDP 
     for i=1:nr_sst, j=1:nr_pyc
         W_SSTEd[i, j] += vb_stdp(t_sst[i, t], v_d[j, t], u_bar_plus[j], u_bar_minus[j], st_SSTEd[i,j]) * dt
     end 
+    ## PV->Es - STDP 
     for i=1:nr_pv, j=1:nr_pyc
         W_PVEs[i, j] += stdp(t_soma[j] - tspike_pv[i])
     end 
 
     ## I{SST,PV}->I{SST,PV}
+    ## SST->PV - STD
     for i=1:nr_sst, j=1:nr_pv
         u_SSTPV[i, j] += ((U_std - u_SSTPV[i, j]) / tau_fac_std + U_std * (1 - u_SSTPV[i, j]) * t_sst[i, t]) * dt
         R_SSTPV[i, j] += ((1 - R_SSTPV[i, j]) / tau_rec_std - u_SSTPV[i, j] * R_SSTPV[i, j] * t_sst[i, t]) * dt
     
         W_SSTPV[i, j] = u_SSTPV[i, j] * R_SSTPV[i, j]
     end 
+    ## PV->SST - STD
     for i=1:nr_pv, j=1:nr_sst
         u_PVSST[i, j] += ((U_std - u_PVSST[i, j]) / tau_fac_std + U_std * (1 - u_PVSST[i, j]) * t_pv[i, t]) * dt
         R_PVSST[i, j] += ((1 - R_PVSST[i, j]) / tau_rec_std - u_PVSST[i, j] * R_PVSST[i, j] * t_pv[i, t]) * dt
 
         W_PVSST[i, j] = u_PVSST[i, j] * R_PVSST[i, j]
     end 
+
+    ## Update synaptic trace 
+    st_EsSST[:] += (- st_EsSST ./ tau_syn + t_pyc[:, t]) .* dt
+    st_EsPV[:] += (- st_EsPV ./ tau_syn + t_pyc[:, t]) .* dt
+    st_SSTEd[:] += (- st_SSTEd ./ tau_syn + t_sst[:, t]) .* dt
+    st_PVEs[:] += (- st_PVEs ./ tau_syn + t_pv[:, t]) .* dt
+    st_SSTPV[:] += (- st_SSTPV ./ tau_syn + t_sst[:, t]) .* dt
+    st_PVSST[:] += (- st_PVSST ./ tau_syn + t_pv[:, t]) .* dt
+    
 end 
 
 step_list = [1:steps;]
 p1 = plot(step_list, v_s[:], label="Somatic Voltage")
-p2 = plot(step_list, v_d[:], label="Dendritic Voltage")
+# p2 = plot(step_list, v_d[:], label="Dendritic Voltage")
 p3 = plot(step_list, v_sst[:], label="SST Voltage")
 p4 = plot(step_list, v_pv[:], label="PV Voltage")
 
-p5 = plot(step_list, I_sbg[:], label="Somatic Background Current")
-p6 = plot(step_list, I_dbg[:], label="Dendritic Background Current")
-p7 = plot(step_list, I_sstbg[:], label="SST Background Current")
-p8 = plot(step_list, I_pvbg[:], label="PV Background Current")
+# p5 = plot(step_list, I_sbg[:], label="Somatic Background Current")
+# p6 = plot(step_list, I_dbg[:], label="Dendritic Background Current")
+# p7 = plot(step_list, I_sstbg[:], label="SST Background Current")
+# p8 = plot(step_list, I_pvbg[:], label="PV Background Current")
 
 p9 = plot(step_list, t_pyc[:], label="PyC Spike Train")
 p10 = plot(step_list, t_sst[:], label="SST Spike Train")
 p11 = plot(step_list, t_pv[:], label="PV Spike Train") 
 
 # Plot voltage trace
-display(plot(p1, p3, p4, layout=(3,1)))
+plt = plot(p1, p3, p4, layout=(3,1))
+plt2 = plot(p9, p10, p11, layout=(3,1))
+datetime = now()
+fdatetime = Dates.format(datetime, "yyyy-mm-dd-HH-MM-SS")
+savefig(plt, "./fig/voltage-trace-$fdatetime.png")
+savefig(plt2, "./fig/spike-train-$fdatetime.png")
 
 # Plot voltage trace and background current 
 # display(plot(p1, p2, p3, p4, p5, p6, p7, p8, layout=(4,2), size=(1000,500)))
