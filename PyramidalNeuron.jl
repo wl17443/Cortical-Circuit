@@ -16,17 +16,17 @@ using .DendriticCompartment
 using .ModellingParameters
 using .UpdateSynapticTrace
 
-v_thr = -50*mV
-v_rest = -70*mV
+v_thr = -37.9*mV
+v_rest = -68.1*mV
 
-function simulatePyC(t, v_d, w_d, v_s, w_s, I_inj_d, I_inj_s, I_dbg, I_sbg, t_, t_soma, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs)
+function simulatePyC(t, v_d, w_d, v_s, w_s, I_inj_d, I_inj_s, I_dbg, I_sbg, t_, t_soma, st_SSTEd, st_PVEs)
     I_dbg += dI_dbg_dt(I_dbg) .* dt
     I_sbg += dI_sbg_dt(I_sbg) .* dt
     
-    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, W_SSTEd, st_SSTEd, t_soma, t) .* dt
+    v_d += dv_d_dt(v_d, I_inj_d, I_dbg, w_d, st_SSTEd, t_soma, t) .* dt
     w_d += dw_d_dt(w_d, v_d) .* dt
 
-    v_s += dv_s_dt(v_s, v_d, I_inj_s, I_sbg, w_s, W_PVEs, st_PVEs) .* dt
+    v_s += dv_s_dt(v_s, v_d, I_inj_s, I_sbg, w_s, st_PVEs) .* dt
     w_s += dw_s_dt(w_s, t_) .* dt
 
     newt_ = map(x -> x >= v_thr ? 1 : 0, v_s)

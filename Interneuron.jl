@@ -3,21 +3,21 @@
 module Interneuron
 
 include("Units.jl")
-# include("Connectivity.jl")
+include("Connectivity.jl")
 include("ModellingParameters.jl")
 include("UpdateSynapticTrace.jl")
 
 using .Units
-# using .Connectivity
+using .Connectivity
 using .ModellingParameters
 using .UpdateSynapticTrace
 using Random, Distributions 
 using Noise 
 
-EL = -70*mV; tau = 10*ms; C = 100*pF; v_thr = -50*mV
+EL = -70*mV; tau = 10*ms; C = 100*pF; v_thr = -65*mV
 
 ## Modelled as leaky-integrate-and-fire-neurons
-dv_dt(v, I_bg, W_EI, W_II, st_EI, st_II) = -(v .- EL) ./ tau + (I_rec(W_EI, W_II, st_EI, st_II) .+ I_bg) / C
+dv_dt(type, v, I_bg, st_EI, st_II) = -(v .- EL) ./ tau + (I_rec(type, st_EI, st_II) .+ I_bg) / C
 
 ## External background current - uncorrelated activity 
 ## Constants 
@@ -30,12 +30,12 @@ dIbg_dt(Ibg) = -(Ibg .- mu) ./ t_bg + sigma * rand(Normal(0.0, sqrt(dt)), size(I
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons 
 ## Need update with individual types of interneurons 
 ## TODO - check that this is a correct calculation 
-I_rec(W_EI, W_II, st_EI, st_II) = sum(abs.(W_EI) .* st_EI) - sum(abs.(W_II) .* st_II)
+I_rec(type, st_EI, st_II) = type == "SST" ? sum(abs.(W_ESST) .* st_EI) - sum(abs.(W_PVSST) .* st_II) : sum(abs.(W_EPV) .* st_EI) - sum(abs.(W_SSTPV) .* st_II)
 
 ## Implement spiking mechanism
 ## Update synaptic trace based on firing 
-function simulateI(t, v, Ibg, t_pyc, tspike, W_EI, W_II, st_EI, st_II)
-    v += dv_dt(v, Ibg, W_EI, W_II, st_EI, st_II) .* dt
+function simulateI(type, t, v, Ibg, tspike, st_EI, st_II)
+    v += dv_dt(type, v, Ibg, st_EI, st_II) .* dt
     Ibg += dIbg_dt(Ibg) .* dt
 
     newt_ = map(x -> x >= v_thr ? 1 : 0, v)

@@ -15,24 +15,21 @@ using Random, Distributions
 #            [-1, 1, 0, 1, -1],
 #            [-1, -1, 1, 0, 1],
 #            [1, -1, -1, 1, 0] ]
-W_ESST = randn((nr_pyc, nr_sst))/(nr_pyc*nr_sst)
-W_EPV = randn((nr_pyc, nr_pv))/(nr_pyc*nr_pv)
 
-W_SSTEd = randn((nr_sst, nr_pyc))*0.2/(nr_sst*nr_pyc)
-W_PVEs = randn((nr_pv, nr_pyc))*0.2/(nr_pv*nr_pyc)
-# W_ChCEa = randn((nr_chc, nr_pyc))/(nr_chc*nr_pyc)
+W_EE = rand(Normal(0.37, 0.1*sqrt(16)), (nr_pyc, nr_pyc)) 
 
-## Inter-Interneuron connectivity 
-W_SSTPV = randn((nr_sst, nr_pv))/(nr_sst*nr_pv)
-# W_SSTChC = randn((nr_sst, nr_chc))/(nr_sst*nr_chc)
-# W_ChCPV = randn((nr_chc, nr_pv))/(nr_chc*nr_pv)
-# W_ChCSST = randn((nr_chc, nr_sst))/(nr_chc*nr_sst)
-W_PVSST = randn((nr_pv, nr_sst))/(nr_pv*nr_sst)
-# W_PVChC = randn((nr_pv, nr_chc))/(nr_pv*nr_chc)
+## Synaptic Weights (Fixed)
+## E->I{SST,PV}
+W_ESST = rand(Normal(0.37, 0.1*sqrt(11)), (nr_pyc, nr_sst)) .* nA
+W_EPV = rand(Normal(0.82, 0.1*sqrt(23)), (nr_pyc, nr_pv)) .* nA
 
-## U - Initial release probability 
-U_ESST = randn(Uniform(0.1, 0.25), (nr_pyc, nr_sst))
-U_EPV = randn(Uniform(0.1, 0.25), (nr_pyc, nr_pv))
+## I{SST,PV}->E{s,d}
+W_SSTEd = rand(Normal(0.49, 0.11*sqrt(20)), (nr_sst, nr_pyc)) .* nA
+W_PVEs = rand(Normal(0.52, 0.11*sqrt(21)), (nr_pv, nr_pyc)) .* nA
+
+## I{SST,PV}->I{SST,PV}
+W_SSTPV = rand(Normal(0.37, 0.1*sqrt(11)), (nr_sst, nr_pv)) .* nA
+W_PVSST = rand(Normal(0.83, 0.25*sqrt(7)), (nr_pv, nr_sst)) .* nA
 
 # Export all
 for n in names(@__MODULE__; all=true)

@@ -1,87 +1,109 @@
-## Main Network Model 
-module RingAttractorNetwork
+## Simple Model with PyC and INs 
+module SimpleRecurrentNetwork 
 
 include("PyramidalNeuron.jl")
 include("Interneuron.jl")
-include("Connectivity.jl")
 include("Units.jl")
 include("ModellingParameters.jl")
+include("Connectivity.jl")
 
 using .PyramidalNeuron
 using .Interneuron
-using .Connectivity 
-using .Units
+using .Units    
 using .ModellingParameters
-using Random, Distributions 
-
-steps = Int(t/dt)
+using .Connectivity
+using Random, Distributions
+using Plots 
+using Noise 
+using Dates 
 
 ## Variables 
+## Voltages 
 v_d = zeros(nr_pyc, steps)
 w_d = zeros(nr_pyc, steps)
 v_s = zeros(nr_pyc, steps)
 w_s = zeros(nr_pyc, steps)
 v_sst = zeros(nr_sst, steps)
 v_pv = zeros(nr_pv, steps)
-v_chc = zeros(nr_chc, steps)
-
+ 
+## External background currents 
 I_sbg = zeros(nr_pyc, steps)
 I_dbg = zeros(nr_pyc, steps)
 I_sstbg = zeros(nr_sst, steps)
 I_pvbg = zeros(nr_pv, steps)
-I_chcbg = zeros(nr_chc, steps)
+
+## Spike train 
+t_pyc = zeros(nr_pyc, steps) 
+t_sst = zeros(nr_sst, steps)
+t_pv = zeros(nr_pv, steps)
+
+## Last spike timing 
+t_soma = zeros(nr_pyc)
+tspike_sst = zeros(nr_sst)
+tspike_pv = zeros(nr_sst)
+
+## Synaptic trace 
+st_EsSST = zeros(nr_pyc, nr_sst)
+st_EsPV = zeros(nr_pyc, nr_pv)
+st_SSTEd = zeros(nr_sst, nr_pyc)
+st_PVEs = zeros(nr_pv, nr_pyc)
+st_SSTPV = zeros(nr_sst, nr_pv)
+st_PVSST = zeros(nr_pv, nr_sst)
 
 ## Initial values 
 v_d[1] = -70*mV
 v_s[1] = -70*mV
-w_d[:, 1] = randn(nr_pyc)
-w_s[:, 1] = randn(nr_pyc)
-
-I_sbg[1] = 0*nA
-I_dbg[1] = 0*nA
-
-v_chc[1] = -70*mV
 v_sst[1] = -70*mV
 v_pv[1] = -70*mV
 
-u_sst = randn(nr_sst)
-u_pv = randn(nr_pv)
-u_chc = randn(nr_chc)
+## Injected Current 
+I_inj_d = zeros(nr_pyc, steps) 
+I_inj_s = zeros(nr_pyc, steps) 
 
-R_sst = randn(nr_sst)
-R_pv = randn(nr_pv)
-R_chc = randn(nr_chc)
+## Simulation
+for t = 2:steps
+    v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, W_SSTEd, W_PVEs, st_SSTEd, st_PVEs)
 
-t_pycd = [[] for i=1:nr_pyc]
-t_pycs = [[] for i=1:nr_pyc]
-t_pyca = [[] for i=1:nr_pyc]
-
-t_sst = [[] for i=1:nr_sst]
-t_pv = [[] for i=1:nr_pv]
-t_chc = []
-
-syntrace_pv = randn(nr_pv, nr_pyc)
-syntrace_sst = randn(nr_sst, nr_pyc)
-syntrace_chc = randn(nr_chc, nr_pyc)
-
-## Simulation 
-for t_step = 2:steps
-    simulatePyC(t_step, dt, v_d[:, t_step-1], w_d[:, t_step-1], v_s[:, t_step-1], w_s[:, t_step-1], I_dbg[:, t_step-1], I_sbg[:, t_step-1], syntrace_sst, syntrace_pv, syntrace_chc)
-    
     ## Simulate for each type of interneuron 
-    simulateI(t_step, dt, v_sst[:, t_step-1], I_sstbg, u_sst, R_sst) 
-    simulateI(t_step, dt, v_pv[:, t_step-1], I_pvbg, u_pv, R_pv) 
-    simulateI(t_step, dt, v_chc[:, t_step-1], I_chcbg, u_chc, R_chc) 
+    v_sst[:, t], I_sstbg[:, t], t_sst[:, t], tspike_sst[:] = simulateI(t, v_sst[:, t-1], I_sstbg[:, t-1], tspike_sst, W_ESST, W_PVSST, st_EsSST, st_PVSST) 
+    v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, v_pv[:, t-1], I_pvbg[:, t-1], tspike_pv, W_EPV, W_SSTPV, st_EsPV, st_SSTPV) 
+
+    ## Update synaptic trace 
+    st_EsSST[:] += (- st_EsSST ./ tau_syn) .* dt + t_pyc[:, t]
+    st_EsPV[:] += (- st_EsPV ./ tau_syn) .* dt + t_pyc[:, t]
+    st_SSTEd[:] += (- st_SSTEd ./ tau_syn) .* dt + t_sst[:, t]
+    st_PVEs[:] += (- st_PVEs ./ tau_syn) .* dt + t_pv[:, t]
+    st_SSTPV[:] += (- st_SSTPV ./ tau_syn) .* dt + t_sst[:, t] 
+    st_PVSST[:] += (- st_PVSST ./ tau_syn) .* dt + t_pv[:, t]
 end 
 
-## Output 
+step_list = [1:steps;]
+p1 = plot(step_list, v_s[:], label="Somatic Voltage")
+# p2 = plot(step_list, v_d[:], label="Dendritic Voltage")
+p3 = plot(step_list, v_sst[:], label="SST Voltage")
+p4 = plot(step_list, v_pv[:], label="PV Voltage")
 
+# p5 = plot(step_list, I_sbg[:], label="Somatic Background Current")
+# p6 = plot(step_list, I_dbg[:], label="Dendritic Background Current")
+# p7 = plot(step_list, I_sstbg[:], label="SST Background Current")
+# p8 = plot(step_list, I_pvbg[:], label="PV Background Current")
 
-# Export all
-for n in names(@__MODULE__; all=true)
-    if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
-        @eval export $n
-    end
-end
+p9 = plot(step_list, t_pyc[:], label="PyC Spike Train")
+p10 = plot(step_list, t_sst[:], label="SST Spike Train")
+p11 = plot(step_list, t_pv[:], label="PV Spike Train") 
+
+# Plot voltage trace
+plt = plot(p1, p3, p4, layout=(3,1))
+plt2 = plot(p9, p10, p11, layout=(3,1))
+datetime = now()
+fdatetime = Dates.format(datetime, "yyyy-mm-dd-HH-MM-SS")
+savefig(plt, "./fig/voltage-trace-$fdatetime.png")
+savefig(plt2, "./fig/spike-train-$fdatetime.png")
+
+# Plot voltage trace and background current 
+# display(plot(p1, p2, p3, p4, p5, p6, p7, p8, layout=(4,2), size=(1000,500)))
+
+# Plot spike train 
+# display(plot(p1, p2, p3, p4, p9, p10, p11))
 
 end 
