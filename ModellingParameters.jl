@@ -2,15 +2,15 @@ module ModellingParameters
 
 include("Units.jl")
 
-using .Units 
+using .Units
 
-## Model Constants 
+## Model Constants
 nr_pyc = 5
 # nr_chc = 1
 nr_sst = 5
 nr_pv = 5
 
-t = 1000*ms
+t = 10000*ms
 dt = 1*ms
 
 steps = Int(t/dt)
@@ -24,4 +24,4 @@ for n in names(@__MODULE__; all=true)
     end
 end
 
-end 
+end

@@ -7,16 +7,21 @@ using .Units
 using .ModellingParameters
 using Random, Distributions
 
-## TODO - Weights are optimised with an optimisation method i.e. drift degree 
+## TODO - Weights are optimised with an optimisation method i.e. drift degree
 
-## Connectivity matrix that makes up the ring attractor network of PyC 
+## Connectivity matrix that makes up the ring attractor network of PyC
 # W_EaEs = [ [0, 1, -1, -1, 1],
 #            [1, 0, 1, -1, -1],
 #            [-1, 1, 0, 1, -1],
 #            [-1, -1, 1, 0, 1],
 #            [1, -1, -1, 1, 0] ]
 
-W_EE = rand(Normal(0.37, 0.1*sqrt(16)), (nr_pyc, nr_pyc)) 
+# W_EE = rand(Normal(0.37, 0.1*sqrt(16)), (nr_pyc, nr_pyc)) .* nA
+W_EE = zeros(nr_pyc, nr_pyc)
+for i=1:nr_pyc
+    W_EE[i, i+1 == nr_pyc+1 ? 1 : i+1] = abs(rand(Normal(0.37, 0.1*sqrt(16)))) * nA
+    W_EE[i, i-1 == 0 ? nr_pyc : i-1] = abs(rand(Normal(0.37, 0.1*sqrt(16)))) * nA
+end
 
 ## Synaptic Weights (Fixed)
 ## E->I{SST,PV}
@@ -38,4 +43,4 @@ for n in names(@__MODULE__; all=true)
     end
 end
 
-end 
+end
