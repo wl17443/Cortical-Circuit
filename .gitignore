@@ -23,8 +23,9 @@ docs/site/
 # environment.
 Manifest.toml
 
-## VS Code Settings 
+## VS Code Settings
 .vscode
 
-## Ignore generated figures (for now)
-fig 
+## Ignore generated figures and csv files 
+fig
+csv

@@ -1,0 +1,7 @@
+# st_EsSST[:] += (- st_EsSST ./ tau_syn) .* dt + t_pyc[:, t]
+# map!(((x, i), ) -> map!(y -> y += (- y / tau_syn) * dt + t_pyc[i, t], x, x), st_EsSST, st_EsSST)
+# st_EsPV[:] += (- st_EsPV ./ tau_syn) .* dt + t_pyc[:, t]
+# st_SSTEd[:] += (- st_SSTEd ./ tau_syn) .* dt + t_sst[:, t]
+# st_PVEs[:] += (- st_PVEs ./ tau_syn) .* dt + t_pv[:, t]
+# st_SSTPV[:] += (- st_SSTPV ./ tau_syn) .* dt + t_sst[:, t]
+# st_PVSST[:] += (- st_PVSST ./ tau_syn) .* dt + t_pv[:, t]
