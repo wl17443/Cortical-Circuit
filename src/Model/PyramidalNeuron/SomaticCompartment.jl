@@ -17,7 +17,7 @@ dw_s_dt(w_s, spike) = - w_s ./ t_s_w + b_s .* spike
 mu = 400e-9; t_bg = 2e-3; sigma = 450e-9;
 
 ## Gaussian white noise with zero mean and correlation
-dI_sbg_dt(I_sbg, bgnoise_lvl, dt) = -(I_sbg .- mu) ./ t_bg + sigma .* rand(Normal(0.0, sqrt(dt)), size(I_sbg))
+dI_sbg_dt(I_sbg, dt) = -(I_sbg .- mu) ./ t_bg + sigma .* rand(Normal(0.0, sqrt(dt)), size(I_sbg))
 
 ## External input currents
 I_s_pv(st_PVE, W_PVE) = -sum(W_PVE * st_PVE, dims=2)

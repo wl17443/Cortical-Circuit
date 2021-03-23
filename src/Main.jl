@@ -1,5 +1,7 @@
 include("Simulation/NeuralNetwork.jl")
 
+using Plots
+using Formatting
 using CSV, DataFrames
 using .NeuralNetwork: Model.Connectivity.initialise_weights
 using .NeuralNetwork: start_simulation
@@ -14,19 +16,28 @@ t = 2000e-3; dt = 1e-3
 bgnoise_lvl = 1
 
 ## Connectivity
-alpha_exc = 1e-9:1e-9:20e-9
-alpha_inh = 1e-9:1e-9:20e-9
+con_params = Dict( # Post synaptic current amplitude
+                   "alpha_excexc" => 26e-9 ,
+                   "alpha_excinh" => 21e-9,
+                   "alpha_inhexc" => 2e-9,
+                   "alpha_inhinh" => 1e-9,
+                   # Concentration parameter kappa
+                   "kappa_excexc" => 4,
+                   "kappa_excinh" => 2,
+                   "kappa_inhexc" => 0.5,
+                   "kappa_inhinh" => 1)
 
 ## Injected Current
-I_inj_amount = 5e-6
-I_inj_duration = 100 #ms
+I_inj_amount = 5e-6 #nA
+I_inj_duration = 50 #ms
 
 I_inj_d = zeros(nr_pyc, Int(t/dt)); I_inj_s = zeros(nr_pyc, Int(t/dt))
+I_inj_s[25, 200:(200+I_inj_duration)] .= I_inj_amount
 
-I_inj_s[25, 200:(200 + I_inj_duration)] .= I_inj_amount
+W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST = initialise_weights(nr_pyc, nr_sst, nr_pv, con_params)
+v_s = start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
-for exc in alpha_exc, inh in alpha_inh
-    W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST = initialise_weights(nr_pyc, nr_sst, nr_pv, exc, inh)
-    v_s = start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, bgnoise_lvl, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
-    CSV.write("C:/Users/Orion/Documents/University/Dissertation/Julia/csv/$exc-$inh-$I_inj_amount-$I_inj_duration.csv", DataFrame(v_s), writeheader=false)
-end
+# filename = format("{1:.1e}-{2:.1e}-{3:.1e}-{4:d}.csv", exc, inh, I_inj_amount, I_inj_duration)
+# CSV.write("C:/Users/Orion/Documents/University/Dissertation/Julia/csv/$filename", DataFrame(v_s), writeheader=false)
+
+display(Plots.heatmap(v_s, c=:balance))

@@ -14,9 +14,9 @@ dIbg_dt(Ibg, bgnoise_lvl, dt) = -(Ibg .- mu) ./ t_bg + sigma .* rand(Normal(0.0,
 I_rec(st_EI, st_II, W_EI, W_II) = sum(W_EI * st_EI, dims=2) - sum(W_II * st_II, dims=2)
 
 ## Update synaptic trace based on firing
-function simulateI(t, dt, v, Ibg, bgnoise_lvl, tspike, st_EI, st_II, W_EI, W_II)
+function simulateI(t, dt, v, Ibg, tspike, st_EI, st_II, W_EI, W_II)
     v += dv_dt(v, Ibg, st_EI, st_II, W_EI, W_II) .* dt
-    Ibg += dIbg_dt(Ibg, bgnoise_lvl, dt) .* dt
+    Ibg += dIbg_dt(Ibg, dt) .* dt
 
     # Get spike train for this timestep
     newt_ = map(x -> x >= v_thr ? 1 : 0, v)
