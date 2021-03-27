@@ -1,4 +1,4 @@
-function start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, bgnoise_lvl, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
+function start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
 steps = Int(t/dt)
 tau_syn = 5e-3
@@ -34,11 +34,11 @@ v_sst[:, 1] .= -70e-3; v_pv[:, 1] .= -70e-3
 
 ## Simulation
 for t = 2:steps
-    v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, dt, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], bgnoise_lvl, t_pyc[:, t-1], t_soma, st_SSTE, st_PVE, st_EE, W_SSTE, W_PVE, W_EE)
+    v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, dt, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, st_SSTE, st_PVE, st_EE, W_SSTE, W_PVE, W_EE)
 
     ## Simulate for each type of interneuron
-    v_sst[:, t], I_sstbg[:, t], t_sst[:, t], tspike_sst[:] = simulateI(t, dt, v_sst[:, t-1], I_sstbg[:, t-1], bgnoise_lvl, tspike_sst, st_ESST, st_PVSST, W_ESST, W_PVSST)
-    v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, dt, v_pv[:, t-1], I_pvbg[:, t-1], bgnoise_lvl, tspike_pv, st_EPV, st_SSTPV, W_EPV, W_SSTPV)
+    v_sst[:, t], I_sstbg[:, t], t_sst[:, t], tspike_sst[:] = simulateI(t, dt, v_sst[:, t-1], I_sstbg[:, t-1], tspike_sst, st_ESST, st_PVSST, W_ESST, W_PVSST)
+    v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, dt, v_pv[:, t-1], I_pvbg[:, t-1], tspike_pv, st_EPV, st_SSTPV, W_EPV, W_SSTPV)
 
     ## Update synaptic trace
     for i=1:nr_pyc, j=1:nr_sst
@@ -64,6 +64,6 @@ for t = 2:steps
     end
 end
 
-return v_s
+return v_s, v_d, v_sst, v_pv
 
 end
