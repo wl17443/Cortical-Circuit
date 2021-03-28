@@ -14,7 +14,8 @@ I_sbg = zeros(nr_pyc, steps); I_dbg = zeros(nr_pyc, steps)
 I_sstbg = zeros(nr_sst, steps); I_pvbg = zeros(nr_pv, steps)
 
 ## Spike train
-t_pyc = zeros(nr_pyc, steps); t_sst = zeros(nr_sst, steps)
+t_pyc = zeros(nr_pyc, steps)
+t_sst = zeros(nr_sst, steps)
 t_pv = zeros(nr_pv, steps)
 
 ## Last spike timing
@@ -64,6 +65,6 @@ for t = 2:steps
     end
 end
 
-return v_s, v_d, v_sst, v_pv
+return t_pyc
 
 end

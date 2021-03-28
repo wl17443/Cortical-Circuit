@@ -1,8 +1,8 @@
 using Plots
 using CSV, DataFrames
 
-path = "C:/Users/Orion/Documents/University/Dissertation/Julia/csv/"
-savepath = "C:/Users/Orion/Documents/University/Dissertation/Julia/fig/"
+path = "/home/anhelka/Documents/Cortical-Circuit/data/kappa_globalvlocal/"
+savepath = "/home/anhelka/Documents/Cortical-Circuit/figs/kappa_globalvlocal/"
 csvfiles = readdir(path)
 
 for csvfile in csvfiles

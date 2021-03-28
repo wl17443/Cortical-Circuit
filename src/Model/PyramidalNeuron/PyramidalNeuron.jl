@@ -1,7 +1,7 @@
 module PyramidalNeuron
     include("somatic_funcs.jl")
     include("dendritic_funcs.jl")
-    include("simulatePyc.jl")
+    include("simulatePyC.jl")
 
-    export simulatePyc
+    export simulatePyC
 end

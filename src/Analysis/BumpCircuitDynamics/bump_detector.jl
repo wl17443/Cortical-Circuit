@@ -1,15 +1,14 @@
 using Plots
 using CSV, DataFrames
 using Random, Distributions
+using KernelDensity
 
-path = "C:/Users/Orion/Documents/University/Dissertation/Julia/csv/two_activities/"
-csvfile = readdir(path)[7]
+path = "/home/anhelka/Documents/Cortical-Circuit/data/kappa_globalvlocal_spiketrains/"
+csvfile = readdir(path)[9]
 
-v_s = CSV.File("$path$csvfile") |> Tables.matrix
-mean = zeros(2000)
-for step in 1:2000
-    norm = fit(Normal, v_s[:, step])
-    mean[step], _ = params(norm)
-end
-display(Plots.heatmap(v_s, c=:balance))
-display(Plots.plot(1:2000, mean))
+spike_trains = Array(CSV.read("$path$csvfile", DataFrame, header=false))
+x = spike_trains[:, 50]
+estimation = kde(x, kernel=Normal)
+x_pdf = pdf(estimation, x)
+
+display(Plots.plot(1:50, x_pdf))
