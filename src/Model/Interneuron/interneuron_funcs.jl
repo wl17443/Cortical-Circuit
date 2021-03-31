@@ -1,6 +1,6 @@
 #=============================================================================================================
 
-Functions used for simulateI function  
+Functions used for simulateI function
 
 =============================================================================================================#
 
@@ -16,4 +16,4 @@ dIbg_dt(Ibg, dt) = -(Ibg .- mu) ./ t_bg + sigma .* rand(Normal(0.0, sqrt(dt)), s
 
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons
-I_rec(st_EI, st_II, W_EI, W_II) = sum(W_EI * st_EI, dims=2) - sum(W_II * st_II, dims=2)
+I_rec(st_EI, st_II, W_EI, W_II) = dropdims(sum(W_EI .* st_EI, dims=1), dims=1) - dropdims(sum(W_II .* st_II, dims=1), dims=1)

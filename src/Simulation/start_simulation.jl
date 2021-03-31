@@ -65,6 +65,6 @@ for t = 2:steps
     end
 end
 
-return t_pyc
+return v_s
 
 end

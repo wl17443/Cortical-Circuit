@@ -20,5 +20,5 @@ mu = 400e-9; t_bg = 2e-3; sigma = 450e-9;
 dI_sbg_dt(I_sbg, dt) = -(I_sbg .- mu) ./ t_bg + sigma .* rand(Normal(0.0, sqrt(dt)), size(I_sbg))
 
 ## External input currents
-I_s_pv(st_PVE, W_PVE) = -sum(W_PVE * st_PVE, dims=2)
-I_s_e(st_EE, W_EE) = sum(W_EE * st_EE, dims=2)
+I_s_pv(st_PVE, W_PVE) = -dropdims(sum(W_PVE .* st_PVE, dims=1), dims=1)
+I_s_e(st_EE, W_EE) = dropdims(sum(W_EE .* st_EE, dims=1), dims=1)

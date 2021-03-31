@@ -60,8 +60,8 @@ function initialise_weights(nr_pyc, nr_sst, nr_pv, con_params::Dict)
     Distr_SSTPV = VonMises(0, con_params["kappa_inhinh"])
     Distr_PVSST  = VonMises(0, con_params["kappa_inhinh"])
 
-    W_SSTPV = zeros(nr_sst, nr_pyc)
-    W_PVSST  = zeros(nr_pv, nr_pyc)
+    W_SSTPV = zeros(nr_sst, nr_pv)
+    W_PVSST  = zeros(nr_pv, nr_sst)
 
     for i=1:nr_sst, j=1:nr_pv
         if i != j

@@ -33,4 +33,4 @@ sigma = 450e-9;
 dI_dbg_dt(Ibg, dt) = -(Ibg .- mu) ./ tau + sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
 
 ## External input current
-I_d_sst(st_SSTE, W_SSTE) = -sum(W_SSTE * st_SSTE, dims=2)
+I_d_sst(st_SSTE, W_SSTE) = -dropdims(sum(W_SSTE .* st_SSTE, dims=1), dims=1)
