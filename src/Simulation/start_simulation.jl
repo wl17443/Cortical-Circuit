@@ -1,4 +1,4 @@
-function start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
+function start_simulation(t::Int, dt::Int, analysis_slice::Int, nr_pyc::Int, nr_pv::Int, nr_sst::Int, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
 steps = Int(t/dt)
 tau_syn = 5e-3
@@ -33,6 +33,9 @@ st_EE = zeros(nr_pyc, nr_pyc)
 v_d[:, 1] .= -70e-3; v_s[:, 1] .= -70e-3
 v_sst[:, 1] .= -70e-3; v_pv[:, 1] .= -70e-3
 
+## Last analysis time point
+last_checkpoint = 1
+
 ## Simulation
 for t = 2:steps
     v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, dt, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, st_SSTE, st_PVE, st_EE, W_SSTE, W_PVE, W_EE)
@@ -62,6 +65,17 @@ for t = 2:steps
     end
     for i=1:nr_pyc, j=1:nr_pyc
         st_EE[i, j] += (- st_EE[i, j] ./ tau_syn) * dt + t_pyc[i, t]
+    end
+
+    ## Analyse current activity
+    if t % analysis_slice == 0
+        spread, activity_site = bump_status(v_s[:, last_checkpoint:t], nr_pyc)
+        println("Checkpoint $last_checkpoint")
+        if spread > 20
+            println("Explosion have occured.")
+        else
+            println("Bump at neuron $activity_site, spreading across $spread neurons.")
+        end
     end
 end
 
