@@ -1,32 +1,43 @@
-function start_simulation(t::Int, dt::Int, analysis_slice::Int, nr_pyc::Int, nr_pv::Int, nr_sst::Int, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
+using CSV
+
+function start_simulation(log, t::Float64, dt::Float64, analysis_slice::Int, network_params::Dict, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
 steps = Int(t/dt)
 tau_syn = 5e-3
 
 ## Variables
 ## Voltages
-v_d = zeros(nr_pyc, steps); v_s = zeros(nr_pyc, steps)
-w_d = zeros(nr_pyc, steps); w_s = zeros(nr_pyc, steps)
-v_sst = zeros(nr_sst, steps); v_pv = zeros(nr_pv, steps)
+v_d = zeros(network_params["nr_pyc"], steps)
+v_s = zeros(network_params["nr_pyc"], steps)
+w_d = zeros(network_params["nr_pyc"], steps)
+w_s = zeros(network_params["nr_pyc"], steps)
+v_sst = zeros(network_params["nr_sst"], steps)
+v_pv = zeros(network_params["nr_pv"], steps)
 
 ## External background currents
-I_sbg = zeros(nr_pyc, steps); I_dbg = zeros(nr_pyc, steps)
-I_sstbg = zeros(nr_sst, steps); I_pvbg = zeros(nr_pv, steps)
+I_sbg = zeros(network_params["nr_pyc"], steps)
+I_dbg = zeros(network_params["nr_pyc"], steps)
+I_sstbg = zeros(network_params["nr_sst"], steps)
+I_pvbg = zeros(network_params["nr_pv"], steps)
 
 ## Spike train
-t_pyc = zeros(nr_pyc, steps)
-t_sst = zeros(nr_sst, steps)
-t_pv = zeros(nr_pv, steps)
+t_pyc = zeros(network_params["nr_pyc"], steps)
+t_sst = zeros(network_params["nr_sst"], steps)
+t_pv = zeros(network_params["nr_pv"], steps)
 
 ## Last spike timing
-t_soma = zeros(nr_pyc); tspike_sst = zeros(nr_sst)
-tspike_pv = zeros(nr_sst)
+t_soma = zeros(network_params["nr_pyc"])
+tspike_sst = zeros(network_params["nr_sst"])
+tspike_pv = zeros(network_params["nr_pv"])
 
 ## Synaptic trace
-st_ESST = zeros(nr_pyc, nr_sst); st_EPV = zeros(nr_pyc, nr_pv)
-st_SSTE = zeros(nr_sst, nr_pyc); st_PVE = zeros(nr_pv, nr_pyc)
-st_SSTPV = zeros(nr_sst, nr_pv); st_PVSST = zeros(nr_pv, nr_sst)
-st_EE = zeros(nr_pyc, nr_pyc)
+st_ESST = zeros(network_params["nr_pyc"], network_params["nr_sst"],)
+st_EPV = zeros(network_params["nr_pyc"], network_params["nr_pv"])
+st_SSTE = zeros(network_params["nr_sst"], network_params["nr_pyc"]);
+st_PVE = zeros(network_params["nr_pv"], network_params["nr_pyc"])
+st_SSTPV = zeros(network_params["nr_sst"], network_params["nr_pv"])
+st_PVSST = zeros(network_params["nr_pv"], network_params["nr_sst"])
+st_EE = zeros(network_params["nr_pyc"], network_params["nr_pyc"])
 
 ## Initial values
 ## Voltages
@@ -45,37 +56,38 @@ for t = 2:steps
     v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, dt, v_pv[:, t-1], I_pvbg[:, t-1], tspike_pv, st_EPV, st_SSTPV, W_EPV, W_SSTPV)
 
     ## Update synaptic trace
-    for i=1:nr_pyc, j=1:nr_sst
+    for i=1:network_params["nr_pyc"], j=1:network_params["nr_sst"]
         st_ESST[i, j] += (- st_ESST[i, j] ./ tau_syn) * dt + t_pyc[i, t]
     end
-    for i=1:nr_pyc, j=1:nr_pv
+    for i=1:network_params["nr_pyc"], j=1:network_params["nr_pv"]
         st_EPV[i, j] += (- st_EPV[i, j] ./ tau_syn) * dt + t_pyc[i, t]
     end
-    for i=1:nr_sst, j=1:nr_pyc
+    for i=1:network_params["nr_sst"], j=1:network_params["nr_pyc"]
         st_SSTE[i, j] += (- st_SSTE[i, j] ./ tau_syn) * dt + t_sst[i, t]
     end
-    for i=1:nr_pv, j=1:nr_pyc
+    for i=1:network_params["nr_pv"], j=1:network_params["nr_pyc"]
         st_PVE[i, j] += (- st_PVE[i, j] ./ tau_syn) * dt + t_pv[i, t]
     end
-    for i=1:nr_sst, j=1:nr_pv
+    for i=1:network_params["nr_sst"], j=1:network_params["nr_pv"]
         st_SSTPV[i, j] += (- st_SSTPV[i, j] ./ tau_syn) * dt + t_sst[i, t]
     end
-    for i=1:nr_pv, j=1:nr_sst
+    for i=1:network_params["nr_pv"], j=1:network_params["nr_sst"]
         st_PVSST[i, j] += (- st_PVSST[i, j] ./ tau_syn) * dt + t_pv[i, t]
     end
-    for i=1:nr_pyc, j=1:nr_pyc
+    for i=1:network_params["nr_pyc"], j=1:network_params["nr_pyc"]
         st_EE[i, j] += (- st_EE[i, j] ./ tau_syn) * dt + t_pyc[i, t]
     end
 
     ## Analyse current activity
     if t % analysis_slice == 0
-        spread, activity_site = bump_status(v_s[:, last_checkpoint:t], nr_pyc)
-        println("Checkpoint $last_checkpoint")
+        spread, activity_site = bump_status(v_s[:, last_checkpoint:t], analysis_slice, network_params["nr_pyc"])
+        write(log, "Checkpoint $last_checkpoint:\n")
         if spread > 20
-            println("Explosion have occured.")
+            write(log, "Explosion have occured.\n")
         else
-            println("Bump at neuron $activity_site, spreading across $spread neurons.")
+            write(log, "Bump at neuron $activity_site, spreading across $spread neurons.\n")
         end
+        last_checkpoint = t
     end
 end
 

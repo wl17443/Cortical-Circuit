@@ -1,7 +1,7 @@
 module NeuralNetwork
 
 include("../Model/Model.jl")
-include("../Analysis/BumpCircuitDynamics/BumpDetector.jl")
+include("../Analysis/BumpDetector/BumpDetector.jl")
 
 using .Model: PyramidalNeuron.simulatePyC
 using .Model: Interneuron.simulateI
