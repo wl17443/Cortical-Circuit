@@ -30,7 +30,7 @@ mu = -300e-9; tau = 2e-3
 sigma = 450e-9;
 
 ## Gaussian white noise with zero mean with variance dt
-dI_dbg_dt(Ibg, dt) = -(Ibg .- mu) ./ tau + sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
+dI_dbg_dt(Ibg, dt, noise_lvl) = -(Ibg .- mu) ./ tau + noise_lvl .* sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
 
 ## External input current
 I_d_sst(st_SSTE, W_SSTE) = -dropdims(sum(W_SSTE .* st_SSTE, dims=1), dims=1)

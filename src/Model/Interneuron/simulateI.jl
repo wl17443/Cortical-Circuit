@@ -1,12 +1,12 @@
 #=============================================================================================================
 
-Function to simulate interneurons 
+Function to simulate interneurons
 
 =============================================================================================================#
 
-function simulateI(t, dt, v, Ibg, tspike, st_EI, st_II, W_EI, W_II)
+function simulateI(t, dt, v, noise_lvl, Ibg, tspike, st_EI, st_II, W_EI, W_II)
     v += dv_dt(v, Ibg, st_EI, st_II, W_EI, W_II) .* dt
-    Ibg += dIbg_dt(Ibg, dt) .* dt
+    Ibg += dIbg_dt(Ibg, dt, noise_lvl) .* dt
 
     # Get spike train for this timestep
     newt_ = map(x -> x >= v_thr ? 1 : 0, v)

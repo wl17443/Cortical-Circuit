@@ -1,6 +1,6 @@
 using CSV
 
-function start_simulation(log, t::Float64, dt::Float64, analysis_slice::Int, network_params::Dict, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
+function start_simulation(log, t::Float64, dt::Float64, analysis_slice::Int, network_params::Dict, noise_lvl, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
 steps = Int(t/dt)
 tau_syn = 5e-3
@@ -49,11 +49,11 @@ last_checkpoint = 1
 
 ## Simulation
 for t = 2:steps
-    v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, dt, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, st_SSTE, st_PVE, st_EE, W_SSTE, W_PVE, W_EE)
+    v_d[:, t], w_d[:, t], v_s[:, t], w_s[:, t], I_dbg[:, t], I_sbg[:, t], t_pyc[:, t], t_soma[:] = simulatePyC(t, dt, v_d[:, t-1], w_d[:, t-1], v_s[:, t-1], w_s[:, t-1], noise_lvl, I_inj_d[:, t-1], I_inj_s[:, t-1], I_dbg[:, t-1], I_sbg[:, t-1], t_pyc[:, t-1], t_soma, st_SSTE, st_PVE, st_EE, W_SSTE, W_PVE, W_EE)
 
     ## Simulate for each type of interneuron
-    v_sst[:, t], I_sstbg[:, t], t_sst[:, t], tspike_sst[:] = simulateI(t, dt, v_sst[:, t-1], I_sstbg[:, t-1], tspike_sst, st_ESST, st_PVSST, W_ESST, W_PVSST)
-    v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, dt, v_pv[:, t-1], I_pvbg[:, t-1], tspike_pv, st_EPV, st_SSTPV, W_EPV, W_SSTPV)
+    v_sst[:, t], I_sstbg[:, t], t_sst[:, t], tspike_sst[:] = simulateI(t, dt, v_sst[:, t-1], noise_lvl, I_sstbg[:, t-1], tspike_sst, st_ESST, st_PVSST, W_ESST, W_PVSST)
+    v_pv[:, t], I_pvbg[:, t], t_pv[:, t], tspike_pv[:] = simulateI(t, dt, v_pv[:, t-1], noise_lvl, I_pvbg[:, t-1], tspike_pv, st_EPV, st_SSTPV, W_EPV, W_SSTPV)
 
     ## Update synaptic trace
     for i=1:network_params["nr_pyc"], j=1:network_params["nr_sst"]
@@ -79,7 +79,7 @@ for t = 2:steps
     end
 
     ## Analyse current activity
-    if t % analysis_slice == 0
+    if t % analysis_slice == 0 && log != false
         spread, activity_site = bump_status(v_s[:, last_checkpoint:t], analysis_slice, network_params["nr_pyc"])
         write(log, "Checkpoint $last_checkpoint:\n")
         if spread > 20
@@ -91,6 +91,10 @@ for t = 2:steps
     end
 end
 
-return v_s
+avg_fr = Dict( "PyC" => sum(t_pyc),
+               "SST" => sum(t_sst),
+               "PV" => sum(t_pv))
+               
+return v_s, avg_fr
 
 end
