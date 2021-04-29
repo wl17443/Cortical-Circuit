@@ -12,7 +12,7 @@ dv_dt(v, I_bg, st_EI, st_II, W_EI, W_II) = -(v .- EL) ./ tau + (I_rec(st_EI, st_
 
 ## External background current - uncorrelated activity
 mu = -100e-9; t_bg = 2e-3; sigma = 400e-9;
-dIbg_dt(Ibg, dt, noise_lvl) = -(Ibg .- mu) ./ t_bg + noise_lvl .* sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
+dIbg_dt(Ibg, dt, noise_lvl) = -(Ibg .- mu) ./ t_bg + noise_lvl["inh"] .* sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
 
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons

@@ -1,4 +1,5 @@
 using CSV
+using DelimitedFiles
 
 function start_simulation(log, t::Float64, dt::Float64, analysis_slice::Int, network_params::Dict, noise_lvl, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
 
@@ -46,6 +47,11 @@ v_sst[:, 1] .= -70e-3; v_pv[:, 1] .= -70e-3
 
 ## Last analysis time point
 last_checkpoint = 1
+checkpoint = 1
+
+## EI current distribution
+distr = zeros(7, Int(steps/analysis_slice))
+firing_rate = zeros(3, Int(steps/analysis_slice))
 
 ## Simulation
 for t = 2:steps
@@ -81,20 +87,24 @@ for t = 2:steps
     ## Analyse current activity
     if t % analysis_slice == 0 && log != false
         spread, activity_site = bump_status(v_s[:, last_checkpoint:t], analysis_slice, network_params["nr_pyc"])
-        write(log, "Checkpoint $last_checkpoint:\n")
-        if spread > 20
-            write(log, "Explosion have occured.\n")
-        else
-            write(log, "Bump at neuron $activity_site, spreading across $spread neurons.\n")
-        end
+        avg_fr_pyc = sum(t_pyc[:, last_checkpoint:t]) / (analysis_slice * 1e-3)
+        avg_fr_sst = sum(t_sst[:, last_checkpoint:t]) / (analysis_slice * 1e-3)
+        avg_fr_pv = sum(t_pv[:, last_checkpoint:t]) / (analysis_slice * 1e-3)
+
+        firing_rate[:, checkpoint] = [avg_fr_pyc, avg_fr_pv, avg_fr_sst]
+
+        distr[:, checkpoint] = [sum(W_EE)/50 * avg_fr_pyc, sum(W_ESST)/50 * avg_fr_pyc, sum(W_EPV)/50 * avg_fr_pyc, sum(W_SSTE)/5 * avg_fr_sst, sum(W_PVE)/5 * avg_fr_pv, sum(W_SSTPV)/5 * avg_fr_sst, sum(W_PVSST)/5 * avg_fr_pv]
+        distr[:, checkpoint] = distr[:, checkpoint] ./ sum(distr[:, checkpoint])
+        map!(x -> 100 * x, distr[:, checkpoint], distr[:, checkpoint])
+
+        write(log, "Checkpoint $checkpoint:\n")
+        write(log, "Bump at neuron $activity_site, spreading across $spread neurons.\n")
+
         last_checkpoint = t
+        checkpoint += 1
     end
 end
 
-avg_fr = Dict( "PyC" => sum(t_pyc),
-               "SST" => sum(t_sst),
-               "PV" => sum(t_pv))
-               
-return v_s, avg_fr
+return v_s, distr, firing_rate
 
 end
