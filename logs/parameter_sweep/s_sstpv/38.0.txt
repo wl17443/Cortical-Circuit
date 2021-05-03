@@ -1,0 +1,105 @@
+Trial 1
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 2:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 3:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 4:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 5:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 6:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 7:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 8:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 9:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 10:
+Bump at neuron 10.0, spreading across 36 neurons.
+Trial 2
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 2:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 3:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 4:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 5:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 6:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 7:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 8:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 9:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 10:
+Bump at neuron 10.0, spreading across 36 neurons.
+Trial 3
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 2:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 3:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 4:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 5:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 6:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 7:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 8:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 9:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 10:
+Bump at neuron 10.0, spreading across 36 neurons.
+Trial 4
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 2:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 3:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 4:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 5:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 6:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 7:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 8:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 9:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 10:
+Bump at neuron 10.0, spreading across 36 neurons.
+Trial 5
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 2:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 3:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 4:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 5:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 6:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 7:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 8:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 9:
+Bump at neuron 10.0, spreading across 36 neurons.
+Checkpoint 10:
+Bump at neuron 10.0, spreading across 36 neurons.

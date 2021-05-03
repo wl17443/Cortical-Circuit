@@ -1,0 +1,105 @@
+Trial 1
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 14 neurons.
+Checkpoint 2:
+Bump at neuron 35.5, spreading across 39 neurons.
+Checkpoint 3:
+Bump at neuron 23.0, spreading across 50 neurons.
+Checkpoint 4:
+Bump at neuron 46.0, spreading across 2 neurons.
+Checkpoint 5:
+Bump at neuron 48.5, spreading across 1 neurons.
+Checkpoint 6:
+Bump at neuron 23.0, spreading across 48 neurons.
+Checkpoint 7:
+Bump at neuron 22.0, spreading across 48 neurons.
+Checkpoint 8:
+Bump at neuron 24.0, spreading across 48 neurons.
+Checkpoint 9:
+Bump at neuron 24.0, spreading across 50 neurons.
+Checkpoint 10:
+Bump at neuron 24.0, spreading across 50 neurons.
+Trial 2
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 14 neurons.
+Checkpoint 2:
+Bump at neuron 35.0, spreading across 38 neurons.
+Checkpoint 3:
+Bump at neuron 19.0, spreading across 50 neurons.
+Checkpoint 4:
+Bump at neuron 46.5, spreading across 1 neurons.
+Checkpoint 5:
+Bump at neuron 20.0, spreading across 50 neurons.
+Checkpoint 6:
+Bump at neuron 24.0, spreading across 50 neurons.
+Checkpoint 7:
+Bump at neuron 47.5, spreading across 1 neurons.
+Checkpoint 8:
+Bump at neuron 22.5, spreading across 47 neurons.
+Checkpoint 9:
+Bump at neuron 48.5, spreading across 1 neurons.
+Checkpoint 10:
+Bump at neuron 47.0, spreading across 2 neurons.
+Trial 3
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 14 neurons.
+Checkpoint 2:
+Bump at neuron 35.0, spreading across 38 neurons.
+Checkpoint 3:
+Bump at neuron 24.0, spreading across 48 neurons.
+Checkpoint 4:
+Bump at neuron 48.0, spreading across 2 neurons.
+Checkpoint 5:
+Bump at neuron 23.0, spreading across 50 neurons.
+Checkpoint 6:
+Bump at neuron 23.0, spreading across 50 neurons.
+Checkpoint 7:
+Bump at neuron 48.0, spreading across 2 neurons.
+Checkpoint 8:
+Bump at neuron 24.0, spreading across 50 neurons.
+Checkpoint 9:
+Bump at neuron 24.0, spreading across 50 neurons.
+Checkpoint 10:
+Bump at neuron 47.5, spreading across 3 neurons.
+Trial 4
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 14 neurons.
+Checkpoint 2:
+Bump at neuron 35.0, spreading across 38 neurons.
+Checkpoint 3:
+Bump at neuron 46.5, spreading across 1 neurons.
+Checkpoint 4:
+Bump at neuron 23.0, spreading across 48 neurons.
+Checkpoint 5:
+Bump at neuron 22.0, spreading across 50 neurons.
+Checkpoint 6:
+Bump at neuron 24.0, spreading across 48 neurons.
+Checkpoint 7:
+Bump at neuron 22.0, spreading across 50 neurons.
+Checkpoint 8:
+Bump at neuron 21.0, spreading across 50 neurons.
+Checkpoint 9:
+Bump at neuron 22.0, spreading across 44 neurons.
+Checkpoint 10:
+Bump at neuron 48.0, spreading across 2 neurons.
+Trial 5
+Checkpoint 1:
+Bump at neuron 10.0, spreading across 14 neurons.
+Checkpoint 2:
+Bump at neuron 35.0, spreading across 38 neurons.
+Checkpoint 3:
+Bump at neuron 24.0, spreading across 48 neurons.
+Checkpoint 4:
+Bump at neuron 22.0, spreading across 50 neurons.
+Checkpoint 5:
+Bump at neuron 23.0, spreading across 48 neurons.
+Checkpoint 6:
+Bump at neuron 24.0, spreading across 50 neurons.
+Checkpoint 7:
+Bump at neuron 47.0, spreading across 2 neurons.
+Checkpoint 8:
+Bump at neuron 23.0, spreading across 48 neurons.
+Checkpoint 9:
+Bump at neuron 23.0, spreading across 46 neurons.
+Checkpoint 10:
+Bump at neuron 24.0, spreading across 48 neurons.
