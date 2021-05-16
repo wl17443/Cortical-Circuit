@@ -20,11 +20,11 @@ function bump_status(spike_trains, slice_size, ring_size)
 
     box = map!(x -> x >= mean_voltage ? max_voltage : min_voltage, activity, activity)
 
-    plt = plot(collect(1:50), box, legend=false)
-    title!("Boxed Result")
-    xlabel!("Neuron Number")
-    ylabel!("Voltage (mV)")
-    savefig(plt, "C:/Users/Orion/Documents/University/Dissertation/Figs-Results/voltage-box-for-eval-section.png")
+    # plt = plot(collect(1:50), box, legend=false)
+    # title!("Boxed Result")
+    # xlabel!("Neuron Number")
+    # ylabel!("Voltage (mV)")
+    # savefig(plt, "C:/Users/Orion/Documents/University/Dissertation/Figs-Results/voltage-box-for-eval-section.png")
 
     a, b = find_edges(box)
 
