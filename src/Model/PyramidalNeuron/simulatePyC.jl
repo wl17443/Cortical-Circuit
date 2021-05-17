@@ -18,6 +18,7 @@ function simulatePyC(t, dt, v_d, w_d, v_s, w_s, noise_lvl, I_inj_d, I_inj_s, I_d
     I_sbg += dI_sbg_dt(I_sbg, dt, noise_lvl) .* dt
 
     newt_ = map(x -> x >= v_thr ? 1 : 0, v_s)
+    
     for i=1:length(t_soma)
         if t * dt - t_soma[i] <= 3e-3
             v_s[i] = v_rest

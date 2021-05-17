@@ -6,19 +6,23 @@ Functions used for simulateI function
 
 using Random, Distributions
 
-## Modelled as leaky-integrate-and-fire-neurons
-EL = -55.5e-3; tau = 10e-3; C = 100e-9; v_thr = -44.5e-3
-dv_dt(v, I_bg, st_EI, st_II, W_EI, W_II) = -(v .- EL) ./ tau + (I_rec(st_EI, st_II, W_EI, W_II) + I_bg) ./ C
-
-## External background current - uncorrelated activity
-mu = -100e-9; t_bg = 2e-3; sigma = 400e-9;
-dIbg_dt(Ibg, dt, noise_lvl) = -(Ibg .- mu) ./ t_bg + noise_lvl["inh"] .* sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
-
+## Background noise
+dIbg_dt(Ibg, dt, noise_lvl) = - 0.5 .* (Ibg .+ 100) + noise_lvl["inh"] .* 400 .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
 
 ## Recurrent Inhibitory Inputs from Interneurons
 ## Interneurons get inhibitory input from other interneurons and excitatory input from connected pyramidal neurons
 I_rec(st_EI, st_II, W_EI, W_II) = dropdims(sum(W_EI .* st_EI, dims=1), dims=1) - dropdims(sum(W_II .* st_II, dims=1), dims=1)
+I_rec(st_EI, W_EI) = dropdims(sum(W_EI .* st_EI, dims=1), dims=1)
 
-# ## Vip (IB) Interneurons
-#
-# dv_vip_dt(v, u, I_bg, st_EI, st_II, W_EI, W_II) = (1.2(v + 75e-3)(v + 45e-3) - u + I_rec(st_EI, st_II, W_EI, W_II, I_bg)) ./ 150e-9
+## Vip (IB) Interneurons
+dv_vip_dt(v, u, I_bg, st_EI, st_II, W_EI, W_II) = (1.2 .* (v .+ 75) .* (v .+ 45) - u + I_rec(st_EI, st_II, W_EI, W_II) + I_bg) ./ 150
+du_vip_dt(v, u) = 0.01 .* (5 .* (v .+ 75) - u)
+
+## SST (LTS) Interneurons
+dv_sst_dt(v, u, I_bg, st_EI, st_II, W_EI, W_II) = ((v .+ 56) .* (v .+ 42) - u + I_rec(st_EI, st_II, W_EI, W_II) + I_bg) ./ 100
+du_sst_dt(v, u) = 0.03 .* (8 .* (v .+ 56) - u)
+
+## PV (FS) Interneurons
+dv_pv_dt(v, u, I_bg, st_EI, W_EI) = ((v .+ 55) .* (v .+ 40) - u + I_rec(st_EI, W_EI) + I_bg) ./ 20
+du_pv_dt(v, u) = 0.2 .* (U.(v) - u)
+U(v) = v < -55 ? 0 : 0.025 * (v + 55)^3

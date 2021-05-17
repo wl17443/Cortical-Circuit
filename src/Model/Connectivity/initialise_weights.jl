@@ -1,4 +1,5 @@
 using LaTeXStrings
+using LinearAlgebra
 using Random, Distributions
 
 function initialise_weights(network_params::Dict, con_params::Dict, noise::Float64)
@@ -19,12 +20,13 @@ function initialise_weights(network_params::Dict, con_params::Dict, noise::Float
 
     W_ESST = con_params["s_excsst"] .* (ones(network_params["nr_pyc"], network_params["nr_sst"]) + rand(Normal(0, con_params["s_excsst"] * noise), (network_params["nr_pyc"], network_params["nr_sst"])))
     W_EPV  = con_params["s_excpv"] .* (ones(network_params["nr_pyc"], network_params["nr_pv"]) + rand(Normal(0, con_params["s_excpv"] * noise), (network_params["nr_pyc"], network_params["nr_pv"])))
+    W_EVip  = con_params["s_excvip"] .* (ones(network_params["nr_pyc"], network_params["nr_vip"]) + rand(Normal(0, con_params["s_excvip"] * noise), (network_params["nr_pyc"], network_params["nr_vip"])))
 
     W_SSTEd = con_params["s_sstexc"] .* (ones(network_params["nr_sst"], network_params["nr_pyc"]) + rand(Normal(0, con_params["s_sstexc"] * noise), (network_params["nr_sst"], network_params["nr_pyc"])))
     W_PVEs  = con_params["s_pvexc"] .* (ones(network_params["nr_pv"], network_params["nr_pyc"]) + rand(Normal(0, con_params["s_pvexc"] * noise), (network_params["nr_pv"], network_params["nr_pyc"])))
 
-    W_SSTPV = con_params["s_sstpv"] .* (ones(network_params["nr_sst"], network_params["nr_pv"]) + rand(Normal(0, con_params["s_sstpv"] * noise), (network_params["nr_sst"], network_params["nr_pv"])))
-    W_PVSST = con_params["s_pvsst"] .* (ones(network_params["nr_pv"], network_params["nr_sst"]) + rand(Normal(0, con_params["s_pvsst"] * noise), (network_params["nr_pv"], network_params["nr_sst"])))
+    W_PVVip = con_params["s_pvvip"] .* (ones(network_params["nr_pv"], network_params["nr_vip"]) + rand(Normal(0, con_params["s_pvvip"] * noise), (network_params["nr_pv"], network_params["nr_vip"])))
+    W_VipSST = con_params["s_vipsst"] .* (ones(network_params["nr_vip"], network_params["nr_sst"]) + rand(Normal(0, con_params["s_vipsst"] * noise), (network_params["nr_vip"], network_params["nr_sst"])))
 
-    return abs.(W_EE), abs.(W_ESST), abs.(W_EPV), abs.(W_SSTEd), abs.(W_PVEs), abs.(W_SSTPV), abs.(W_PVSST)
+    return abs.(W_EE), abs.(W_ESST), abs.(W_EPV), abs.(W_EVip), abs.(W_SSTEd), abs.(W_PVEs), abs.(W_PVVip), abs.(W_VipSST)
 end
