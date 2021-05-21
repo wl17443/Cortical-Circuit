@@ -15,51 +15,56 @@ using .NeuralNetwork: Model.InjectedCurrent.initialise_inj_current, Model.Inject
 
 network_params = Dict( # Network parameters - size
                        "nr_pyc" => 100,
-                       "nr_sst" => 5,
-                       "nr_pv"  => 5,
-                       "nr_vip" => 10)
+                       "nr_sst" => 10,
+                       "nr_pv"  => 10,
+                       "nr_vip" => 20 )
 
 ## Simulation timing
-t = 5000; dt = 0.1 # ms
+t = 3000 # ms
+dt = 0.1 # ms
 
+## Initialise injected current
 ## Stimulation
 I_inj_s = zeros(network_params["nr_pyc"], Int(t/dt))
 stimulation_strength = 5e-6 # uA
 stimulation_duration = 500 # 50 ms
 add_inj_current!(I_inj_s, stimulation_strength, 1, stimulation_duration, 20)
+# add_inj_current!(I_inj_s, stimulation_strength, 1, stimulation_duration, 54)
 
 ## Selection
 I_inj_d = zeros(network_params["nr_pyc"], Int(t/dt))
 selection_strength = 10*stimulation_strength
 selection_duration = 50 # 5 ms
-add_inj_current!(I_inj_d, selection_strength, 10, selection_duration, 20)
+# add_inj_current!(I_inj_d, selection_strength, 500, selection_duration, 20)
+# add_inj_current!(I_inj_d, selection_strength, 4010, selection_duration, 40)
 
-noise = 0.0
-
-# Connectivity
+## Connectivity
 con_params = Dict( # Post synaptic current amplitude
-                   "s_excexc" => 3550e-9,
-                   "s_excsst" => 0,
-                   "s_excpv"  => 100,
-                   "s_excvip" => 0,
+                   "s_excexc"  => 3000e-9,
+                   "s_excsst"  => 10, # 80,
+                   "s_excpv"   => 40, # 20,
+                   "s_excvip"  => 90,
 
-                   "s_sstexc" => 0e-9,
-                   "s_pvexc"  => 90e-9,
+                   "s_sstexc"  => 1000e-9, # 400e-9, # 100e-9,
+                   "s_pvexc"   => 100e-9, # 50e-9,
 
-                   "s_pvvip"  => 0,
-                   "s_vipsst"  => 0,
+                   "s_pvvip"   => 20,
+                   "s_vipsst"  => 200, # 20,
 
                    # Concentration parameter kappa
-                   "k_excexc" => 80 )
+                   "k_excexc" => 280 )
 
-noise_lvl = Dict( "som" => 1000,
-                  "den" => 1000,
-                  "inh" => 0)
+## Variance in same-type synaptic weights
+percentage = 0.0
 
-W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST = initialise_weights(network_params, con_params, noise)
+## Initialise synaptic weights
+W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST = initialise_weights(network_params, con_params, percentage)
 
-v_s, v_d, v_pv, v_sst, v_vip = start_simulation(false, t, dt, 500, network_params, noise_lvl, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST)
+## Background noise variable
+D = 1 * 450e-9
+v1, v2, v_pv, v_sst, v_vip= start_simulation(t, dt, 500, network_params, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST, D)
 
-display(Plots.heatmap(v_s, title="Somatic Voltage Trace", xaxis="Time (ms)", yaxis="Nr. of Neuron", c=:balance))
-# display(plot(collect(1:1000), v_pv[2, 1:1000]))
-# Plots.heatmap(W_EE)
+# Show raster plot
+l1 = Plots.heatmap(v1, title="Layer 1: Somatic Voltage Trace", xaxis="Time (0.1 ms)", yaxis="Nr. of Neuron", c=:balance)
+l2 = Plots.heatmap(v2, title="Layer 2: Somatic Voltage Trace", xaxis="Time (0.1 ms)", yaxis="Nr. of Neuron", c=:balance)
+display(plot(l1, l2, layout=(2, 1)))

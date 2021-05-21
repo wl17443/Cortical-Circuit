@@ -1,8 +1,13 @@
+#=============================================================================================================
+
+Functions used for visualising results. 
+
+=============================================================================================================#
+
 using Plots
 using Dates
 
 default(titlefont=(10, "sans-serif"), legendfontsize=18)
-
 
 function show_heatmap(arr::Array{Float64,2}, title)
     plt = Plots.heatmap(arr, c=:balance, title=title)

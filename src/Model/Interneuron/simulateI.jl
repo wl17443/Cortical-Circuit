@@ -1,14 +1,13 @@
 #=============================================================================================================
 
-Function to simulate interneurons
+Function to simulate interneuron. 
 
 =============================================================================================================#
 
-function simulateVip(dt, v, u, noise_lvl, Ibg, st_EI, st_II, W_EI, W_II)
+function simulateVip(dt, v, u, st_E1I, st_E2I, st_II, W_EI, W_II, D)
 
-    v += dv_vip_dt(v, u, Ibg, st_EI, st_II, W_EI, W_II) * dt
+    v += dv_vip_dt(v, u, st_E1I, st_E2I, st_II, W_EI, W_II, D, dt) * dt
     u += du_vip_dt(v, u) * dt
-    Ibg += dIbg_dt(Ibg, dt, noise_lvl) * dt
 
     newt_ = zeros(length(v))
 
@@ -21,14 +20,13 @@ function simulateVip(dt, v, u, noise_lvl, Ibg, st_EI, st_II, W_EI, W_II)
         end
     end
 
-    return v, u, Ibg, newt_
+    return v, u, newt_
 end
 
-function simulateSST(dt, v, u, noise_lvl, Ibg, st_EI, st_II, W_EI, W_II)
+function simulateSST(dt, v, u, st_E1I, st_E2I, st_II, W_EI, W_II, D)
 
-    v += dv_sst_dt(v, u, Ibg, st_EI, st_II, W_EI, W_II) * dt
+    v += dv_sst_dt(v, u, st_E1I, st_E2I, st_II, W_EI, W_II, D, dt) * dt
     u += du_sst_dt(v, u) * dt
-    Ibg += dIbg_dt(Ibg, dt, noise_lvl) * dt
 
     newt_ = zeros(length(v))
 
@@ -40,14 +38,13 @@ function simulateSST(dt, v, u, noise_lvl, Ibg, st_EI, st_II, W_EI, W_II)
         end
     end
 
-    return v, u, Ibg, newt_
+    return v, u, newt_
 end
 
-function simulatePV(dt, v, u, noise_lvl, Ibg, st_EI, W_EI)
+function simulatePV(dt, v, u, st_E1I, st_E2I, W_EI, D)
 
-    v += dv_pv_dt(v, u, Ibg, st_EI, W_EI) * dt
+    v += dv_pv_dt(v, u, st_E1I, st_E2I, W_EI, D, dt) * dt
     u += du_pv_dt(v, u) * dt
-    Ibg += dIbg_dt(Ibg, dt, noise_lvl) * dt
 
     newt_ = zeros(length(v))
 
@@ -58,5 +55,5 @@ function simulatePV(dt, v, u, noise_lvl, Ibg, st_EI, W_EI)
         end
     end
 
-    return v, u, Ibg, newt_
+    return v, u, newt_
 end

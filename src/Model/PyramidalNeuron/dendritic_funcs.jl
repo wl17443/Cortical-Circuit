@@ -1,6 +1,6 @@
 #=============================================================================================================
 
-Function to simulate PyC dendritic compartment
+Function to simulate PyC dendritic compartment. 
 
 =============================================================================================================#
 
@@ -26,16 +26,10 @@ function K(t)
 end
 
 ##  where t_ is the last spike time of soma - updates with every spike (global variable)
-dv_d_dt(v, Iinj, Ibg, w_d, st_SSTE, W_SSTE, t_soma, t) = -(v .- EL) ./ t_d + (g_d .* f(v) + c_d .* K(t .- t_soma) + w_d + Iinj + Ibg + I_d_sst(st_SSTE, W_SSTE)) ./ C_d
+dv_d_dt(v, Iinj, w_d, st_IE, W_IE, t_soma, t, D, dt) = -(v .- EL) ./ t_d + (g_d .* f(v) + c_d .* K(t .- t_soma) + w_d + Iinj + Irec(st_IE, W_IE) + D .* rand(Normal(0.0, sqrt(dt)), length(v))) ./ C_d
+dv_d_dt(v, w_d, st_EE, st_IE, W_EE, W_IE, t_soma, t, D, dt) = -(v .- EL) ./ t_d + (g_d .* f(v) + c_d .* K(t .- t_soma) + w_d + Irec(st_EE, st_IE, W_EE, W_IE) + D .* rand(Normal(0.0, sqrt(dt)), length(v))) ./ C_d
 dw_d_dt(w_d, v) = - w_d ./ t_d_w + a_d .* (v .- EL) ./ t_d_w
 
-## External background current - uncorrelated activity
-## Constants
-mu = -300e-9; tau = 2e-3
-sigma = 450e-9;
-
-## Gaussian white noise with zero mean with variance dt
-dI_dbg_dt(Ibg, dt, noise_lvl) = -(Ibg .- mu) ./ tau + noise_lvl["den"] .* sigma .* rand(Normal(0.0, sqrt(dt)), size(Ibg))
-
 ## External input current
-I_d_sst(st_SSTE, W_SSTE) = -dropdims(sum(W_SSTE .* st_SSTE, dims=1), dims=1)
+Irec(st_IE, W_IE) = - dropdims(sum(W_IE .* st_IE, dims=1), dims=1)
+Irec(st_EE, st_IE, W_EE, W_IE) = dropdims(sum(W_EE .* st_EE, dims=1), dims=1) - dropdims(sum(W_IE .* st_IE, dims=1), dims=1)

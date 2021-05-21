@@ -1,3 +1,9 @@
+#=============================================================================================================
+
+Functions used for writing membrane potential results to CSV. 
+
+=============================================================================================================#
+
 using CSV, DataFrames
 
 function write2csv(arr::Array{Float64,2}, folder_name::String, datetime::String)
