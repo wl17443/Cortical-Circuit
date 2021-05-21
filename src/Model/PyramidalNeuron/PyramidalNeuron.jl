@@ -3,5 +3,5 @@ module PyramidalNeuron
     include("dendritic_funcs.jl")
     include("simulatePyC.jl")
 
-    export simulatePyC
+    export simulatePyC1, simulatePyC2
 end

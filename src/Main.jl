@@ -1,46 +1,70 @@
 include("Simulation/NeuralNetwork.jl")
+include("Analysis/WriteData/WriteData.jl")
+include("Analysis/Visualisation/Visualise.jl")
 
+using CSV
 using Plots
-using Formatting
-using CSV, DataFrames
+using Dates
+using DelimitedFiles
+using Random, Distributions
+using .WriteData: write2csv
+using .Visualise: save_heatmap, show_heatmap
 using .NeuralNetwork: Model.Connectivity.initialise_weights
 using .NeuralNetwork: start_simulation
 using .NeuralNetwork: Model.InjectedCurrent.initialise_inj_current, Model.InjectedCurrent.add_inj_current!
 
-## Network size
-nr_pyc = 50; nr_sst = 50; nr_pv = 50
+network_params = Dict( # Network parameters - size
+                       "nr_pyc" => 100,
+                       "nr_sst" => 10,
+                       "nr_pv"  => 10,
+                       "nr_vip" => 20 )
 
 ## Simulation timing
-t = 3000e-3; dt = 1e-3
+t = 3000 # ms
+dt = 0.1 # ms
 
-kappa_localised = 10:2:20
-kappa_global = [0.01, 0.1]
+## Initialise injected current
+## Stimulation
+I_inj_s = zeros(network_params["nr_pyc"], Int(t/dt))
+stimulation_strength = 5e-6 # uA
+stimulation_duration = 500 # 50 ms
+add_inj_current!(I_inj_s, stimulation_strength, 1, stimulation_duration, 20)
+# add_inj_current!(I_inj_s, stimulation_strength, 1, stimulation_duration, 54)
 
-for kappa_localised in kappa_localised, kappa_global in kappa_global
+## Selection
+I_inj_d = zeros(network_params["nr_pyc"], Int(t/dt))
+selection_strength = 10*stimulation_strength
+selection_duration = 50 # 5 ms
+# add_inj_current!(I_inj_d, selection_strength, 500, selection_duration, 20)
+# add_inj_current!(I_inj_d, selection_strength, 4010, selection_duration, 40)
 
-    ## Connectivity
-    con_params = Dict( # Post synaptic current amplitude
-                       "alpha_excexc" => 15e-9 ,
-                       "alpha_excinh" => 22e-9,
-                       "alpha_inhexc" => 1e-9,
-                       "alpha_inhinh" => 0.94e-9,
-                       # Concentration parameter kappa
-                       "kappa_excexc" => kappa_localised,
-                       "kappa_excinh" => kappa_global,
-                       "kappa_inhexc" => kappa_global,
-                       "kappa_inhinh" => kappa_global)
+## Connectivity
+con_params = Dict( # Post synaptic current amplitude
+                   "s_excexc"  => 3000e-9,
+                   "s_excsst"  => 10, # 80,
+                   "s_excpv"   => 40, # 20,
+                   "s_excvip"  => 90,
 
-    ## Injected Current
-    I_inj_amount = 6.2e-6 #nA
-    I_inj_duration = 50 #ms
+                   "s_sstexc"  => 1000e-9, # 400e-9, # 100e-9,
+                   "s_pvexc"   => 100e-9, # 50e-9,
 
-    I_inj_d = zeros(nr_pyc, Int(t/dt)); I_inj_s = zeros(nr_pyc, Int(t/dt))
-    add_inj_current!(I_inj_s, I_inj_amount, 1, I_inj_duration, 25)
+                   "s_pvvip"   => 20,
+                   "s_vipsst"  => 200, # 20,
 
-    W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST = initialise_weights(nr_pyc, nr_sst, nr_pv, con_params)
-    spike_trains = start_simulation(t, dt, nr_pyc, nr_pv, nr_sst, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_SSTE, W_PVE, W_SSTPV, W_PVSST)
+                   # Concentration parameter kappa
+                   "k_excexc" => 280 )
 
-    filename = format("{1:d}-{2:.2e}.csv", kappa_localised, kappa_global)
-    CSV.write("/home/anhelka/Documents/Cortical-Circuit/data/kappa_globalvlocal_spiketrains/$filename", DataFrame(spike_trains), header=false)
+## Variance in same-type synaptic weights
+percentage = 0.0
 
-end
+## Initialise synaptic weights
+W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST = initialise_weights(network_params, con_params, percentage)
+
+## Background noise variable
+D = 1 * 450e-9
+v1, v2, v_pv, v_sst, v_vip= start_simulation(t, dt, 500, network_params, I_inj_s, I_inj_d, W_EE, W_ESST, W_EPV, W_EVip, W_SSTE, W_PVE, W_PVVip, W_VipSST, D)
+
+# Show raster plot
+l1 = Plots.heatmap(v1, title="Layer 1: Somatic Voltage Trace", xaxis="Time (0.1 ms)", yaxis="Nr. of Neuron", c=:balance)
+l2 = Plots.heatmap(v2, title="Layer 2: Somatic Voltage Trace", xaxis="Time (0.1 ms)", yaxis="Nr. of Neuron", c=:balance)
+display(plot(l1, l2, layout=(2, 1)))

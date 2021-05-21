@@ -28,4 +28,9 @@ Manifest.toml
 
 ## Ignore generated figures and csv files
 data
-figs
+logs
+docs
+old_code
+temp_code
+results
+test
